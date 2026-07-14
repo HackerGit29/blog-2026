@@ -13,7 +13,7 @@ interface SEOHeadProps {
 
 const SITE_NAME = 'Benji AKA Dev';
 const DEFAULT_DESC = 'Blog sur l\'IA, Microsoft Learn, Power Platform, Cloud, DevOps et développement web.';
-const DEFAULT_IMG = 'https://benji-aka-dev.site/favicon.svg';
+const DEFAULT_IMG = 'https://benji-aka-dev.site/android-chrome-512x512.png';
 
 export function SEOHead({
   title,
