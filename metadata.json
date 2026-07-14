@@ -1,0 +1,6 @@
+{
+  "name": "INFOTEK Blog Hub",
+  "description": "Un hub premium pour les développeurs, axé sur l'apprentissage, les projets Microsoft, et l'IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

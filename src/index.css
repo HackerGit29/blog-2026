@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #F8F7F3; /* Light warm background inspired by the mockup */
+  color: #1A1A1A;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Base styles for markdown content */
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.markdown-body p {
+  line-height: 1.6;
+  margin-bottom: 1em;
+}
+.markdown-body img {
+  max-width: 100%;
+  border-radius: 8px;
+}
