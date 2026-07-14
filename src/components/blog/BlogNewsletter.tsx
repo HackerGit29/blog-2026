@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, Typography, Button, TextField, Paper, CircularProgress, Alert, useTheme } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Mail as MailIcon, CheckCircle as CheckCircleIcon } from 'lucide-react';
 import { useNewsletterSubscribe } from '../../hooks/useNewsletterSubscribe';
+import { TurnstileWidget } from '../TurnstileWidget';
 
 const newsletterSchema = z.object({
   email: z.string().min(1, { message: 'L\'adresse email est requise.' }).email({ message: 'Veuillez entrer une adresse email valide.' }),
@@ -18,6 +19,8 @@ export function BlogNewsletter() {
   const { mutate, isPending } = useNewsletterSubscribe();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileReset, setTurnstileReset] = useState(0);
 
   const {
     register,
@@ -28,16 +31,29 @@ export function BlogNewsletter() {
     resolver: zodResolver(newsletterSchema),
   });
 
+  const onTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setErrorMessage(null);
+  }, []);
+
   const onSubmit = (data: NewsletterFormData) => {
+    if (!turnstileToken) {
+      setErrorMessage('Veuillez valider le captcha.');
+      return;
+    }
     setSuccessMessage(null);
     setErrorMessage(null);
-    mutate(data.email, {
+    mutate({ email: data.email, turnstileToken }, {
       onSuccess: () => {
         setSuccessMessage('Merci ! Votre inscription à la newsletter a été enregistrée avec succès.');
+        setTurnstileToken(null);
+        setTurnstileReset((n) => n + 1);
         reset();
       },
       onError: (err: any) => {
         setErrorMessage(err.message || 'Une erreur est survenue lors de l\'inscription.');
+        setTurnstileToken(null);
+        setTurnstileReset((n) => n + 1);
       },
     });
   };
@@ -146,11 +162,13 @@ export function BlogNewsletter() {
                 )}
               </Box>
 
+              <TurnstileWidget onVerify={onTurnstileVerify} reset={turnstileReset} />
+
               <Button 
                 type="submit"
                 variant="contained" 
                 color="primary"
-                disabled={isPending}
+                disabled={isPending || !turnstileToken}
                 sx={{ 
                   py: 1.5,
                   fontSize: '0.95rem',
