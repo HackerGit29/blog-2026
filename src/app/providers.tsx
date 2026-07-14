@@ -2,6 +2,7 @@ import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { create } from 'zustand';
 
 // Zustand store for UI preferences (theme)
@@ -143,9 +144,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+      <HelmetProvider>
         <BrowserRouter>
           {children}
         </BrowserRouter>
+      </HelmetProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

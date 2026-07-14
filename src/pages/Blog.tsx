@@ -10,6 +10,7 @@ import { BlogSearchFilters } from '../components/blog/BlogSearchFilters';
 import { BlogNewsletter } from '../components/blog/BlogNewsletter';
 import { useBlogArticles } from '../hooks/useBlogArticles';
 import { RotateCcw as RotateCcwIcon } from 'lucide-react';
+import { SEOHead } from '../components/SEOHead';
 
 export function Blog() {
   const [search, setSearch] = useState('');
@@ -59,7 +60,9 @@ export function Blog() {
   };
 
   return (
-    <BlogLayout>
+    <>
+      <SEOHead title="Blog" description="Blog sur l'IA, Microsoft Learn, Power Platform, Cloud, DevOps et développement web." />
+      <BlogLayout>
       <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 4, md: 8 } }}>
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 12 }}>
@@ -216,5 +219,6 @@ export function Blog() {
         )}
       </Container>
     </BlogLayout>
+    </>
   );
 }

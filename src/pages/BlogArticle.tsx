@@ -7,6 +7,7 @@ import { BlogLayout } from '../components/blog/BlogLayout';
 import { getEmbedUrl } from '../lib/videoUtils';
 import { TutorialWorkspace } from '../components/blog/tutorials/TutorialWorkspace';
 import { getTutorialEnhancement } from '../data/tutorialEnhancements';
+import { SEOHead, BlogPostingJsonLd } from '../components/SEOHead';
 
 export function BlogArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -51,8 +52,27 @@ export function BlogArticle() {
   const isVideoTutorial = article.media_type === 'video';
   const enhancement = isVideoTutorial ? getTutorialEnhancement(article.slug) : null;
 
+  const articleUrl = `https://benji-aka-dev.site/blog/${article.slug}`;
+
   return (
-    <BlogLayout>
+    <>
+      <SEOHead
+        title={article.title}
+        description={article.summary || article.meta_description || ''}
+        canonical={articleUrl}
+        image={article.image_url || undefined}
+        type="article"
+        publishedAt={article.published_at}
+        tags={article.tags || []}
+      />
+      <BlogPostingJsonLd
+        title={article.title}
+        description={article.summary || article.meta_description || ''}
+        url={articleUrl}
+        image={article.image_url || undefined}
+        publishedAt={article.published_at || article.created_at}
+      />
+      <BlogLayout>
       <Container maxWidth={isVideoTutorial ? "lg" : "md"} sx={{ py: 4 }}>
         {/* Universal Back Navigation */}
         <Button 
@@ -148,5 +168,6 @@ export function BlogArticle() {
         )}
       </Container>
     </BlogLayout>
+    </>
   );
 }
