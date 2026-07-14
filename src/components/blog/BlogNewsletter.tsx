@@ -20,7 +20,6 @@ export function BlogNewsletter() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [turnstileReset, setTurnstileReset] = useState(0);
 
   const {
     register,
@@ -47,13 +46,11 @@ export function BlogNewsletter() {
       onSuccess: () => {
         setSuccessMessage('Merci ! Votre inscription à la newsletter a été enregistrée avec succès.');
         setTurnstileToken(null);
-        setTurnstileReset((n) => n + 1);
         reset();
       },
       onError: (err: any) => {
         setErrorMessage(err.message || 'Une erreur est survenue lors de l\'inscription.');
         setTurnstileToken(null);
-        setTurnstileReset((n) => n + 1);
       },
     });
   };
@@ -162,7 +159,12 @@ export function BlogNewsletter() {
                 )}
               </Box>
 
-              <TurnstileWidget onVerify={onTurnstileVerify} reset={turnstileReset} />
+              <TurnstileWidget
+                siteKey={import.meta.env.VITE_TURNSTILE_SITEKEY}
+                onVerify={onTurnstileVerify}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+              />
 
               <Button 
                 type="submit"

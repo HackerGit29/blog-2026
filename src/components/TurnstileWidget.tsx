@@ -1,63 +1,87 @@
-import { useEffect, useRef } from 'react';
-import { Box, useTheme } from '@mui/material';
-
-interface TurnstileWidgetProps {
-  onVerify: (token: string) => void;
-  reset?: number;
-}
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
     turnstile?: {
-      render: (container: string | HTMLElement, options: Record<string, unknown>) => string;
-      reset: (widgetId: string) => void;
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string;
+          callback?: (token: string) => void;
+          "expired-callback"?: () => void;
+          "error-callback"?: () => void;
+          theme?: "light" | "dark" | "auto";
+          size?: "normal" | "compact" | "flexible";
+        }
+      ) => string;
       remove: (widgetId: string) => void;
+      reset: (widgetId?: string) => void;
+      ready?: (callback: () => void) => void;
     };
-    turnstileCallbacks?: Array<() => void>;
   }
 }
 
-const CONTAINER_ID = 'turnstile-container';
+type TurnstileWidgetProps = {
+  siteKey: string;
+  onVerify: (token: string) => void;
+  onExpire?: () => void;
+  onError?: () => void;
+  theme?: "light" | "dark" | "auto";
+};
 
-export function TurnstileWidget({ onVerify, reset }: TurnstileWidgetProps) {
-  const widgetRef = useRef<string | null>(null);
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+export function TurnstileWidget({
+  siteKey,
+  onVerify,
+  onExpire,
+  onError,
+  theme = "auto",
+}: TurnstileWidgetProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const widgetIdRef = useRef<string | null>(null);
+  const renderedRef = useRef(false);
 
   useEffect(() => {
+    if (!siteKey) return;
+    if (!containerRef.current) return;
+    if (renderedRef.current) return;
+
     const renderWidget = () => {
-      const el = document.getElementById(CONTAINER_ID);
-      if (!el || !window.turnstile) return false;
-      if (widgetRef.current) {
-        window.turnstile.remove(widgetRef.current);
-      }
-      widgetRef.current = window.turnstile.render(CONTAINER_ID, {
-        sitekey: (import.meta as any).env.VITE_TURNSTILE_SITEKEY,
-        callback: onVerify,
-        theme: isDark ? 'dark' : 'light',
+      if (!window.turnstile) return;
+      if (!containerRef.current) return;
+      if (renderedRef.current) return;
+
+      widgetIdRef.current = window.turnstile.render(containerRef.current, {
+        sitekey: siteKey,
+        theme,
+        size: "normal",
+        callback: (token: string) => {
+          onVerify(token);
+        },
+        "expired-callback": () => {
+          onExpire?.();
+        },
+        "error-callback": () => {
+          onError?.();
+        },
       });
-      return true;
+
+      renderedRef.current = true;
     };
 
-    if (window.turnstile) {
-      renderWidget();
+    if (window.turnstile?.ready) {
+      window.turnstile.ready(renderWidget);
     } else {
-      window.turnstileCallbacks = window.turnstileCallbacks || [];
-      window.turnstileCallbacks.push(renderWidget);
+      renderWidget();
     }
 
     return () => {
-      if (widgetRef.current && window.turnstile) {
-        window.turnstile.remove(widgetRef.current);
+      if (window.turnstile && widgetIdRef.current) {
+        window.turnstile.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
+        renderedRef.current = false;
       }
     };
-  }, [isDark]);
+  }, [siteKey, theme, onVerify, onExpire, onError]);
 
-  useEffect(() => {
-    if (reset && widgetRef.current && window.turnstile) {
-      window.turnstile.reset(widgetRef.current);
-    }
-  }, [reset]);
-
-  return <Box id={CONTAINER_ID} sx={{ mb: 1 }} />;
+  return <div ref={containerRef} />;
 }

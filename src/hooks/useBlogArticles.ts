@@ -1,45 +1,37 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '../integrations/supabase/client';
 
 export interface UseBlogArticlesOptions {
   search?: string;
   categoryId?: string;
   mediaFilter?: 'all' | 'image' | 'video';
-  limit?: number;
+  page?: number;
+  perPage?: number;
+}
+
+export interface ArticlesResponse {
+  data: any[];
+  total: number;
+  total_all: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+  category_counts: Record<string, number>;
 }
 
 export function useBlogArticles(options?: UseBlogArticlesOptions) {
   return useQuery({
     queryKey: ['blog_articles', options],
-    queryFn: async () => {
-      let query = supabase
-        .from('admin_articles')
-        .select('*, blog_categories(name, slug, color)')
-        .eq('is_published', true)
-        .order('published_at', { ascending: false });
+    queryFn: async (): Promise<ArticlesResponse> => {
+      const params = new URLSearchParams();
+      if (options?.page) params.set('page', String(options.page));
+      if (options?.perPage) params.set('per_page', String(options.perPage));
+      if (options?.search) params.set('search', options.search);
+      if (options?.categoryId && options.categoryId !== 'all') params.set('category_id', options.categoryId);
+      if (options?.mediaFilter && options.mediaFilter !== 'all') params.set('media_type', options.mediaFilter);
 
-      if (options?.search) {
-        query = query.or(`title.ilike.%${options.search}%,summary.ilike.%${options.search}%`);
-      }
-
-      if (options?.categoryId && options.categoryId !== 'all') {
-        query = query.eq('category_id', options.categoryId);
-      }
-
-      if (options?.mediaFilter === 'video') {
-        query = query.eq('media_type', 'video');
-      } else if (options?.mediaFilter === 'image') {
-        query = query.or('media_type.eq.image,media_type.is.null');
-      }
-
-      if (options?.limit) {
-        query = query.limit(options.limit);
-      }
-
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      return data;
+      const res = await fetch(`/api/articles?${params.toString()}`);
+      if (!res.ok) throw new Error('Erreur lors du chargement des articles');
+      return res.json();
     },
   });
 }

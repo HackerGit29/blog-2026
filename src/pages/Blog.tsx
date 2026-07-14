@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Container, Typography, Box, Grid, CircularProgress, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Container, Typography, Box, Grid, CircularProgress, Button, Pagination } from '@mui/material';
 import { BlogLayout } from '../components/blog/BlogLayout';
 import { ArticleCard } from '../components/blog/ArticleCard';
 import { HighlightedArticleCard } from '../components/blog/HighlightedArticleCard';
@@ -16,48 +16,44 @@ export function Blog() {
   const [search, setSearch] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
   const [mediaFilter, setMediaFilter] = useState<'all' | 'image' | 'video'>('all');
-
-  // Fetch all articles to compute categories' article counts and totals
-  const { data: allArticlesData, isLoading: isLoadingAll } = useBlogArticles();
-  const allArticles = (allArticlesData || []) as any[];
-
-  // Fetch filtered articles
-  const { data: articlesData, isLoading: isLoadingFiltered } = useBlogArticles({
-    search,
-    categoryId: selectedCategoryId,
-    mediaFilter,
-  });
-  const articles = (articlesData || []) as any[];
-
-  const isLoading = isLoadingAll || isLoadingFiltered;
-
-  // Compute category counts dynamically based on all published articles
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    if (allArticles) {
-      allArticles.forEach((art: any) => {
-        if (art.category_id) {
-          counts[art.category_id] = (counts[art.category_id] || 0) + 1;
-        }
-      });
-    }
-    return counts;
-  }, [allArticles]);
-
-  const totalCount = allArticles.length;
-
-  // Layout slices for unfiltered view
-  const highlightedArticle = allArticles?.[0];
-  const featuredPosts = allArticles?.slice(1, 4) || [];
-  const listPosts = allArticles?.slice(4, 7) || []; // Affiche uniquement les 3 articles suivants sous forme de liste
+  const [page, setPage] = useState(1);
+  const perPage = 9;
 
   const isFiltered = search !== '' || selectedCategoryId !== 'all' || mediaFilter !== 'all';
+
+  const { data, isLoading } = useBlogArticles({
+    page: isFiltered ? page : 1,
+    perPage,
+    search: isFiltered ? search : undefined,
+    categoryId: isFiltered ? selectedCategoryId : undefined,
+    mediaFilter: isFiltered ? mediaFilter : undefined,
+  });
+
+  const articles = (data?.data || []) as any[];
+  const total = data?.total || 0;
+  const totalAll = data?.total_all || 0;
+  const totalPages = data?.total_pages || 1;
+  const categoryCounts = data?.category_counts || {};
+
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleResetFilters = () => {
     setSearch('');
     setSelectedCategoryId('all');
     setMediaFilter('all');
+    setPage(1);
   };
+
+  const handleCategorySelect = (id: string) => {
+    setSelectedCategoryId(id);
+    setPage(1);
+  };
+
+  const highlightedArticle = articles?.[0];
+  const featuredPosts = articles?.slice(1, 4) || [];
 
   return (
     <>
@@ -70,10 +66,8 @@ export function Blog() {
           </Box>
         ) : (
           <>
-            {/* NO FILTER ACTIVE: Show Hero, Interactive Widget, Search, and Structured sections */}
-            {!isFiltered ? (
+            {!isFiltered && page === 1 ? (
               <>
-                {/* Section 1: Highlighted Post & Categories Widget */}
                 <Grid container spacing={4} sx={{ mb: 8, mt: 2, alignItems: 'stretch' }}>
                   <Grid size={{ xs: 12, md: 5 }} sx={{ display: 'flex' }}>
                     <HighlightedArticleCard article={highlightedArticle} />
@@ -82,28 +76,26 @@ export function Blog() {
                     <Box sx={{ width: '100%', pl: { md: 4 } }}>
                       <BlogCategoriesWidget 
                         selectedCategoryId={selectedCategoryId} 
-                        onSelectCategory={setSelectedCategoryId}
+                        onSelectCategory={handleCategorySelect}
                         categoryCounts={categoryCounts}
-                        totalCount={totalCount}
+                        totalCount={totalAll}
                       />
                     </Box>
                   </Grid>
                 </Grid>
 
-                {/* Filter and Search Bar */}
                 <BlogSearchFilters 
                   search={search}
                   onSearchChange={setSearch}
                   selectedCategoryId={selectedCategoryId}
-                  onCategoryChange={setSelectedCategoryId}
+                  onCategoryChange={handleCategorySelect}
                   mediaFilter={mediaFilter}
                   onMediaFilterChange={setMediaFilter}
                   categoryCounts={categoryCounts}
-                  totalCount={totalCount}
+                  totalCount={totalAll}
                   showCategoriesInline={false}
                 />
 
-                {/* Section 3: Featured Blog Posts */}
                 {featuredPosts.length > 0 && (
                   <Box sx={{ mb: 8 }}>
                     <Typography variant="h5" align="center" sx={{ fontWeight: 800, mb: 4 }}>Sélection d'articles de spécialisation</Typography>
@@ -119,28 +111,26 @@ export function Blog() {
                   </Box>
                 )}
 
-                {/* Section 4: All Remaining List Posts (Extended layout to see everything!) */}
-                {listPosts.length > 0 && (
+                {articles.length > 4 && (
                   <Box sx={{ mb: 10 }}>
                     <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>Tous nos articles techniques et ressources</Typography>
-                    {listPosts.map((article, index) => (
+                    {articles.slice(4).map((article, index) => (
                       <ArticleListItem key={article.id} article={article} index={index} />
                     ))}
                   </Box>
                 )}
               </>
             ) : (
-              /* FILTER ACTIVE: Show inline categories, filters, and dynamic unified grid of all matches */
               <Box sx={{ mt: 4 }}>
                 <BlogSearchFilters 
                   search={search}
                   onSearchChange={setSearch}
                   selectedCategoryId={selectedCategoryId}
-                  onCategoryChange={setSelectedCategoryId}
+                  onCategoryChange={handleCategorySelect}
                   mediaFilter={mediaFilter}
                   onMediaFilterChange={setMediaFilter}
                   categoryCounts={categoryCounts}
-                  totalCount={totalCount}
+                  totalCount={totalAll}
                   showCategoriesInline={true}
                 />
 
@@ -150,7 +140,7 @@ export function Blog() {
                       ? "Tous les contenus correspondants" 
                       : `Articles de la catégorie sélectionnée`}
                     <Typography component="span" variant="h5" sx={{ color: 'text.secondary', ml: 1, fontWeight: 500 }}>
-                      ({articles?.length || 0})
+                      ({total})
                     </Typography>
                   </Typography>
 
@@ -164,16 +154,32 @@ export function Blog() {
                   </Button>
                 </Box>
 
-                {articles && articles.length > 0 ? (
-                  <Grid container spacing={3} sx={{ mb: 10 }}>
-                    {articles.map((article) => (
-                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={article.id} sx={{ display: 'flex' }}>
-                        <Box sx={{ width: '100%' }}>
-                          <ArticleCard article={article} />
-                        </Box>
-                      </Grid>
-                    ))}
-                  </Grid>
+                {articles.length > 0 ? (
+                  <>
+                    <Grid container spacing={3} sx={{ mb: 6 }}>
+                      {articles.map((article) => (
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={article.id} sx={{ display: 'flex' }}>
+                          <Box sx={{ width: '100%' }}>
+                            <ArticleCard article={article} />
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+
+                    {totalPages > 1 && (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                        <Pagination 
+                          count={totalPages} 
+                          page={page} 
+                          onChange={handlePageChange}
+                          color="primary"
+                          size="large"
+                          showFirstButton 
+                          showLastButton
+                        />
+                      </Box>
+                    )}
+                  </>
                 ) : (
                   <Box sx={{ 
                     textAlign: 'center', 
@@ -211,10 +217,11 @@ export function Blog() {
               </Box>
             )}
 
-            {/* Section 5: Newsletter Subscriber Banner */}
-            <Box sx={{ mb: 8 }}>
-              <BlogNewsletter />
-            </Box>
+            {!isFiltered && page === 1 && (
+              <Box sx={{ mb: 8 }}>
+                <BlogNewsletter />
+              </Box>
+            )}
           </>
         )}
       </Container>
