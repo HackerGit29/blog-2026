@@ -2,9 +2,4 @@ name = "blog-2026"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-07-14"
 
-[vars]
-SUPABASE_URL = "https://qiqccehbbsslxzlbmmlp.supabase.co"
-SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpcWNjZWhiYnNzbHh6bGJtbWxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzczMzAsImV4cCI6MjA5OTYxMzMzMH0.52AKyp8pnnRlXdTwwf603foswrgrdmtgBYI60xBVFr8"
-
 [env.production]
-vars = { SUPABASE_URL = "https://qiqccehbbsslxzlbmmlp.supabase.co", SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpcWNjZWhiYnNzbHh6bGJtbWxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMzczMzAsImV4cCI6MjA5OTYxMzMzMH0.52AKyp8pnnRlXdTwwf603foswrgrdmtgBYI60xBVFr8" }

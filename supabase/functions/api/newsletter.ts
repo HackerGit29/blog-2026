@@ -4,38 +4,13 @@ interface Env {
   TURNSTILE_SECRET: string;
 }
 
-const rateLimit = new Map<string, { count: number; reset: number }>();
-const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW = 60_000;
-const SECURITY_HEADERS = {
-  'Content-Type': 'application/json',
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-};
-
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
-  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-  const now = Date.now();
-
-  const entry = rateLimit.get(ip);
-  if (entry && now < entry.reset) {
-    if (entry.count >= RATE_LIMIT_MAX) {
-      return new Response(JSON.stringify({ error: 'Trop de tentatives. Réessayez plus tard.' }), {
-        status: 429,
-        headers: { ...SECURITY_HEADERS, 'Retry-After': `${Math.ceil((entry.reset - now) / 1000)}` },
-      });
-    }
-    entry.count++;
-  } else {
-    rateLimit.set(ip, { count: 1, reset: now + RATE_LIMIT_WINDOW });
-  }
 
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: SECURITY_HEADERS,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
@@ -46,9 +21,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     };
 
     if (!email || !turnstileToken) {
-      return new Response(JSON.stringify({ error: 'Email et token requis' }), {
+      return new Response(JSON.stringify({ error: 'Email and Turnstile token required' }), {
         status: 400,
-        headers: SECURITY_HEADERS,
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -60,9 +35,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const verifyResult = await verify.json() as { success: boolean };
 
     if (!verifyResult.success) {
-      return new Response(JSON.stringify({ error: 'Vérification anti-bot échouée' }), {
+      return new Response(JSON.stringify({ error: 'Turnstile verification échouée' }), {
         status: 403,
-        headers: SECURITY_HEADERS,
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -80,25 +55,25 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     if (res.status === 409) {
       return new Response(JSON.stringify({ error: 'Vous êtes déjà inscrit à la newsletter.' }), {
         status: 409,
-        headers: SECURITY_HEADERS,
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     if (!res.ok) {
       return new Response(JSON.stringify({ error: 'Erreur lors de l\'inscription' }), {
         status: 500,
-        headers: SECURITY_HEADERS,
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: SECURITY_HEADERS,
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch {
     return new Response(JSON.stringify({ error: 'Requête invalide' }), {
       status: 400,
-      headers: SECURITY_HEADERS,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };

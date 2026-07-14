@@ -1,0 +1,14 @@
+{
+  "name": "Benji AKA Dev",
+  "short_name": "BenjiDev",
+  "description": "Blog sur l'IA, Cloud, DevOps et développement web",
+  "start_url": "/blog",
+  "icons": [
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#234940",
+  "background_color": "#F9F8F4",
+  "display": "standalone",
+  "lang": "fr-FR"
+}
