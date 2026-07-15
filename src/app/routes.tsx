@@ -35,24 +35,23 @@ import { RootRedirect } from '../components/auth/RootRedirect';
  * Table de routage de l'application.
  *
  * Hiérarchie des accès :
- *   Public          → /blog, /blog/*, /:username
- *   Admin           → /admin (dashboard, articles, vidéos, paramètres)
- *   SuperAdmin only → /admin/community
+ *   Public (par tenant) → /:user, /:user/blog, /:user/blog/:slug, /:user/videos
+ *   Auth               → /login, /inbox, /banned
+ *   Admin              → /admin/*
+ *   SuperAdmin only    → /admin/community
  *
  * Route racine `/` :
- *   Connecté → redirige vers /:username (profil personnel)
- *   Invité   → PortfolioHome avec données du store
+ *   Connecté → redirige vers /:user (profil public)
+ *   Invité   → profil par défaut du store
+ *
+ * Le segment `:user` identifie le tenant (ex: "admin"). Toutes les pages
+ * publiques sont scopées par tenant.
  */
 export function AppRoutes() {
   return (
     <Routes>
       {/* ── Racine ──────────────────────────────────────────────── */}
       <Route path="/" element={<RootRedirect />} />
-
-      {/* ── Blog public ─────────────────────────────────────────── */}
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/videos" element={<BlogVideos />} />
-      <Route path="/blog/:slug" element={<BlogArticle />} />
 
       {/* ── Auth ────────────────────────────────────────────────── */}
       <Route path="/login" element={<Login />} />
@@ -69,9 +68,6 @@ export function AppRoutes() {
 
       {/* ── Banned ──────────────────────────────────────────────── */}
       <Route path="/banned" element={<Banned />} />
-
-      {/* ── Route bloquée /goal ─────────────────────────────────── */}
-      <Route path="/goal" element={<Navigate to="/blog" replace />} />
 
       {/* ── Admin (role = admin) ────────────────────────────────── */}
       <Route
@@ -114,11 +110,18 @@ export function AppRoutes() {
         }
       />
 
-      {/* ── Profil public /:username ─────────────────────────────── */}
-      <Route path="/:username" element={<PortfolioHome />} />
+      {/* ── Profil public /:user ────────────────────────────────── */}
+      <Route path="/:user" element={<PortfolioHome />} />
+
+      {/* ── Blog du tenant /:user/blog ──────────────────────────── */}
+      <Route path="/:user/blog" element={<Blog />} />
+      <Route path="/:user/blog/:slug" element={<BlogArticle />} />
+
+      {/* ── Vidéos du tenant /:user/videos ──────────────────────── */}
+      <Route path="/:user/videos" element={<BlogVideos />} />
 
       {/* ── 404 ─────────────────────────────────────────────────── */}
-      <Route path="*" element={<Navigate to="/blog" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

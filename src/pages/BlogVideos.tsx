@@ -8,9 +8,8 @@ import { BlogLayout } from '../components/blog/BlogLayout';
 import { useBlogArticles } from '../hooks/useBlogArticles';
 import { useBlogCategories } from '../hooks/useBlogCategories';
 import { TutorialCard } from '../components/blog/tutorials/TutorialCard';
-import { TutorialWorkspace } from '../components/blog/tutorials/TutorialWorkspace';
 import { getTutorialEnhancement } from '../data/tutorialEnhancements';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 
 // Recommended learning paths to link tutorials to Microsoft Learn
@@ -18,10 +17,11 @@ import { learnPlans } from '../data/learnPlans';
 
 export function BlogVideos() {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
-  const [activeTutorial, setActiveTutorial] = useState<any>(null);
 
   // Load public articles of type 'video'
   const { data: rawArticles, isLoading, error } = useBlogArticles({ mediaFilter: 'video' });
@@ -59,13 +59,6 @@ export function BlogVideos() {
   const articleData = rawArticles?.data ?? [];
   const articles = articleData.length > 0 ? articleData : fallbackArticles;
 
-  // Set default active tutorial once articles load
-  useEffect(() => {
-    if (articles && articles.length > 0 && !activeTutorial) {
-      setActiveTutorial(articles[0]);
-    }
-  }, [articles, activeTutorial]);
-
   // Filters application
   const filteredArticles = articles.filter((article: any) => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -80,8 +73,6 @@ export function BlogVideos() {
 
     return matchesSearch && matchesCategory && matchesLevel;
   });
-
-  const activeEnhancement = activeTutorial ? getTutorialEnhancement(activeTutorial.slug) : null;
 
   return (
     <BlogLayout>
@@ -104,8 +95,9 @@ export function BlogVideos() {
               color="primary" 
               startIcon={<PlayCircleIcon />}
               onClick={() => {
-                const element = document.getElementById('workspace-interactive');
-                element?.scrollIntoView({ behavior: 'smooth' });
+                if (articles && articles.length > 0) {
+                  navigate(`${base}/blog/${articles[0].slug}`);
+                }
               }}
               sx={{ borderRadius: '24px', px: 3, py: 1.2, fontWeight: 700 }}
             >
@@ -115,7 +107,7 @@ export function BlogVideos() {
               variant="outlined" 
               color="inherit" 
               startIcon={<SchoolIcon />}
-              onClick={() => navigate('/blog/learn-plans')}
+              onClick={() => navigate(`${base}/videos/learn-plans`)}
               sx={{ borderRadius: '24px', px: 3, py: 1.2, fontWeight: 700 }}
             >
               Plans Microsoft Learn
@@ -124,7 +116,7 @@ export function BlogVideos() {
               variant="outlined" 
               color="inherit" 
               startIcon={<GitHubIcon />}
-              onClick={() => navigate('/blog/projects')}
+              onClick={() => navigate(`${base}/videos/projects`)}
               sx={{ borderRadius: '24px', px: 3, py: 1.2, fontWeight: 700 }}
             >
               Dépôts GitHub
@@ -132,28 +124,8 @@ export function BlogVideos() {
           </Box>
         </Box>
 
-        {/* 1. Tutorial Workspace Panel */}
-        {activeTutorial && activeEnhancement && (
-          <Box id="workspace-interactive" sx={{ mb: 10 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-              <Chip label="Session active" color="error" size="small" sx={{ fontWeight: 800, height: 22, px: 0.5 }} />
-              <Typography variant="h5" sx={{ fontWeight: 850 }}>
-                Espace Pédagogique Interactif
-              </Typography>
-            </Box>
-            <TutorialWorkspace 
-              videoUrl={activeTutorial.video_url} 
-              imageUrl={activeTutorial.image_url} 
-              title={activeTutorial.title} 
-              enhancement={activeEnhancement} 
-            />
-          </Box>
-        )}
-
-        <Divider sx={{ mb: 8 }} />
-
-        {/* 2. Interactive Search & Advanced Filtering */}
-        <Box sx={{ mb: 5 }}>
+        {/* Interactive Search & Advanced Filtering */}
+        <Box sx={{ mb: 5, mt: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: 850, mb: 3 }}>
             Tous les modules de formation
           </Typography>
@@ -224,7 +196,7 @@ export function BlogVideos() {
           </Box>
         </Box>
 
-        {/* 3. Grid List of Tutorials */}
+        {/* Grid List of Tutorials */}
         {isLoading ? (
           <Grid container spacing={3}>
             {[1, 2, 3].map((n) => (
@@ -252,12 +224,6 @@ export function BlogVideos() {
                 size={{ xs: 12, sm: 6, md: 4 }} 
                 key={article.id} 
                 sx={{ display: 'flex' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveTutorial(article);
-                  const element = document.getElementById('workspace-interactive');
-                  element?.scrollIntoView({ behavior: 'smooth' });
-                }}
               >
                 <TutorialCard article={article} index={index} />
               </Grid>
@@ -282,7 +248,7 @@ export function BlogVideos() {
                 variant="contained" 
                 color="primary" 
                 size="large"
-                onClick={() => navigate('/blog/learn-plans')}
+                onClick={() => navigate(`${base}/videos/learn-plans`)}
                 sx={{ borderRadius: '30px', px: 4, py: 1.5, fontWeight: 750 }}
               >
                 Parcourir les plans d'apprentissage

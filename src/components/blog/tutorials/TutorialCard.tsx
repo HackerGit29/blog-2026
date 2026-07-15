@@ -4,7 +4,7 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CodeIcon from '@mui/icons-material/Code';
 import SubtitlesIcon from '@mui/icons-material/Subtitles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { getTutorialEnhancement } from '../../../data/tutorialEnhancements';
 
@@ -15,6 +15,8 @@ export interface TutorialCardProps {
 
 export function TutorialCard({ article, index }: TutorialCardProps) {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
   const enhancement = getTutorialEnhancement(article.slug);
 
   const formattedDate = article.published_at 
@@ -52,7 +54,7 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
             boxShadow: '0 8px 30px rgba(var(--mui-palette-primary-mainChannel), 0.05)'
           }
         }}
-        onClick={() => navigate(`/blog/${article.slug}`)}
+        onClick={() => navigate(`${base}/blog/${article.slug}`)}
       >
       <Box sx={{ position: 'relative' }}>
         <CardMedia

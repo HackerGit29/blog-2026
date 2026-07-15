@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { Box, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion, useInView } from 'motion/react';
 
 export interface ArticleListItemProps {
@@ -10,6 +10,8 @@ export interface ArticleListItemProps {
 
 export function ArticleListItem({ article, index = 0 }: ArticleListItemProps) {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { amount: 0.2, once: false });
 
@@ -60,7 +62,7 @@ export function ArticleListItem({ article, index = 0 }: ArticleListItemProps) {
           {article.title}
         </Typography>
         <Typography 
-          onClick={() => navigate(`/blog/${article.slug}`)}
+          onClick={() => navigate(`${base}/blog/${article.slug}`)}
           variant="button" 
           sx={{ 
             fontWeight: 800, 

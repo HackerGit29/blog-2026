@@ -1,6 +1,7 @@
 import { Drawer, Box, Typography, Button, IconButton, Stack, Divider } from '@mui/material';
+import { sanitizeHtml } from '../../lib/sanitize';
 import { X, ExternalLink, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import type { Message } from '../../hooks/useMessages';
 
 interface MessageDrawerProps {
@@ -11,15 +12,17 @@ interface MessageDrawerProps {
 
 export function MessageDrawer({ open, onClose, message }: MessageDrawerProps) {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
   if (!message) return null;
 
   const handleCta = () => {
     switch (message.cta_target) {
       case 'article':
-        navigate(message.cta_url ?? '/blog');
+        navigate(message.cta_url ?? `${base}/blog`);
         break;
       case 'video':
-        navigate(message.cta_url ?? '/blog/videos');
+        navigate(message.cta_url ?? `${base}/videos`);
         break;
       case 'external':
         if (message.cta_url) window.open(message.cta_url, '_blank', 'noopener,noreferrer');
@@ -60,10 +63,9 @@ export function MessageDrawer({ open, onClose, message }: MessageDrawerProps) {
             }}
           />
         )}
-        {/* ponytail: admin-only BlockNote HTML — no new deps for DOMPurify. Add sanitizer if message.body ever sourced from non-trusted writers. */}
         <Box
           sx={{ flex: 1, overflowY: 'auto', mb: 2 }}
-          dangerouslySetInnerHTML={{ __html: message.body }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(message.body) }}
         />
         {message.cta_label && message.cta_target && message.cta_target !== 'none' && (
           <Button

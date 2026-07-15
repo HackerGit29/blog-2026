@@ -16,6 +16,7 @@ import type { TransitionProps } from '@mui/material/transitions';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useNotificationReads } from '../../hooks/useNotificationReads';
+import { useAuth } from '../../hooks/useAuth';
 import { NotifItem } from './NotifItem';
 
 interface NotificationCenterProps {
@@ -35,7 +36,10 @@ export function NotificationCenter({ open, onClose }: NotificationCenterProps) {
   const [tab, setTab] = useState<FilterTab>('all');
   const { notifications, reads, unreadCount } = useNotifications();
   const { markAsRead, markAllAsRead } = useNotificationReads();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const tenant = (user?.user_metadata?.user_name as string | undefined) ?? 'admin';
+  const base = `/${tenant}`;
 
   const filtered = useMemo(() => {
     if (tab === 'unread') return notifications.filter((n) => !reads.has(n.id));
@@ -46,12 +50,15 @@ export function NotificationCenter({ open, onClose }: NotificationCenterProps) {
 
   const handleClick = (n: (typeof notifications)[number]) => {
     markAsRead.mutate(n.id);
+    const slug = n.metadata?.slug as string | undefined;
+    const targetUser = (n.metadata?.username as string | undefined) ?? tenant;
+    const targetBase = `/${targetUser}`;
     switch (n.cta_target) {
       case 'article':
-        navigate(`/blog/${n.metadata?.slug ?? ''}`);
+        navigate(slug ? `${targetBase}/blog/${slug}` : `${base}/blog`);
         break;
       case 'video':
-        navigate(`/blog/videos#${n.metadata?.video_id ?? ''}`);
+        navigate(`${targetBase}/videos${n.metadata?.video_id ? `#${n.metadata.video_id}` : ''}`);
         break;
       case 'external':
         if (n.cta_url) window.open(n.cta_url, '_blank', 'noopener,noreferrer');

@@ -23,6 +23,8 @@ export function ArticleManager() {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const { user } = useAuth();
+  const tenant = (user?.user_metadata?.user_name as string | undefined) ?? 'admin';
+  const base = `/${tenant}`;
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -41,14 +43,17 @@ export function ArticleManager() {
   });
 
   const { data: articles, isLoading } = useQuery({
-    queryKey: ['admin-articles'],
+    queryKey: ['admin-articles', user?.id],
     queryFn: async () => {
+      if (!user) return [];
       const { data } = await supabase
         .from('admin_articles')
         .select('*, blog_categories(name)')
+        .eq('author_id', user.id)
         .order('created_at', { ascending: false });
       return (data || []) as any[];
     },
+    enabled: !!user,
   });
 
   const filtered: any[] = (articles || []).filter((a: any) => {
@@ -166,7 +171,7 @@ export function ArticleManager() {
               <TableRow key={a.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>{a.title}</Typography>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>/blog/{a.slug}</Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>{base}/blog/{a.slug}</Typography>
                 </TableCell>
                 <TableCell><Typography variant="body2" sx={{ color: 'text.secondary' }}>{a.blog_categories?.name || '—'}</Typography></TableCell>
                 <TableCell><Chip label={a.status} size="small" sx={{ fontWeight: 600, bgcolor: statusColors[a.status] + '20', color: statusColors[a.status], textTransform: 'capitalize' }} /></TableCell>

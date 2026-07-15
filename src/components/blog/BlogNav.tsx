@@ -1,24 +1,26 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Box, Container } from '@mui/material';
 import { DarkMode, LightMode, Menu as MenuIcon } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useUIStore } from '../../app/providers';
 
 export function BlogNav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useParams<{ user: string }>();
   const { mode, toggleMode } = useUIStore();
+  const base = `/${user ?? 'admin'}`;
 
   const navItems = [
-    { label: 'Blog', path: '/blog' },
-    { label: 'Tutoriels', path: '/blog/videos' },
+    { label: 'Blog', path: `${base}/blog` },
+    { label: 'Tutoriels', path: `${base}/videos` },
   ];
 
   return (
     <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
       <Container maxWidth="lg">
         <Toolbar disableGutters sx={{ justifyContent: 'space-between', minHeight: 70 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/blog')}>
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate(base)}>
             {/* Logo/Title intentionally removed per user request */}
           </Box>
           
