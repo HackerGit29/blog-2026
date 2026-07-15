@@ -27,6 +27,8 @@ export function useProfile() {
           following: d.following || profile.following,
           likes: d.likes || profile.likes,
           socials: d.socials || profile.socials,
+          isVerified: d.is_verified || false,
+          username: d.username || profile.username,
         });
       });
   }, [user]);
@@ -40,9 +42,7 @@ export function useProfile() {
       location: data.location,
       avatar_url: data.avatarUrl,
       socials: data.socials,
-      followers: data.followers,
-      following: data.following,
-      likes: data.likes,
+      username: data.username,
       updated_at: new Date().toISOString(),
     });
   };

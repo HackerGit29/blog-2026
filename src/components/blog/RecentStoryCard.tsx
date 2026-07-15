@@ -1,11 +1,13 @@
 import React from 'react';
 import { Typography, Box, Chip, IconButton } from '@mui/material';
 import BookmarkBorder from '@mui/icons-material/BookmarkBorder';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 
 export function RecentStoryCard({ article }: { article: any }) {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
 
   if (!article) return null;
 
@@ -20,7 +22,7 @@ export function RecentStoryCard({ article }: { article: any }) {
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      onClick={() => navigate(`/blog/${article.slug}`)}
+      onClick={() => navigate(`${base}/blog/${article.slug}`)}
       style={{ height: '100%', width: '100%' }}
     >
       <Box 

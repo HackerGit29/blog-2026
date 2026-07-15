@@ -1,7 +1,9 @@
 import React, { useRef } from 'react';
 import { Box, Stack, Typography, Button, Avatar } from '@mui/material';
 import { Zap } from 'lucide-react';
-import { usePortfolioStore } from '../../store/portfolio';
+import { useNavigate } from 'react-router-dom';
+import { usePortfolioStore, ProfileData } from '../../store/portfolio';
+import { useAuth } from '../../hooks/useAuth';
 import { motion } from 'motion/react';
 import { Magnetic } from './Magnetic';
 import gsap from 'gsap';
@@ -22,12 +24,28 @@ const StatBox = ({ value, label }: { value: string; label: string }) => (
   </Stack>
 );
 
-export function ProfileSection() {
-  const profile = usePortfolioStore((s) => s.profile);
+export function ProfileSection({ profileOverride }: { profileOverride?: ProfileData }) {
+  const storeProfile = usePortfolioStore((s) => s.profile);
+  // profileOverride (depuis /u/:userId) a la priorité sur le store
+  const profile = profileOverride || storeProfile;
   const containerRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const badgesRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Suivre/contacter ont du sens uniquement quand on visite le profil d'un autre
+  // utilisateur et qu'on est connecté. Sinon → /login.
+  const isOwnProfile = user?.user_metadata?.user_name === profile.username || user?.email === profile.username;
+  const requiresAuth = !user;
+  const guardedNavigate = (path: string) => {
+    if (requiresAuth || isOwnProfile) {
+      navigate('/login', { state: { from: window.location.pathname } });
+      return;
+    }
+    navigate(path);
+  };
 
   useGSAP(() => {
     gsap.fromTo(avatarRef.current, { 
@@ -119,12 +137,14 @@ export function ProfileSection() {
             <Typography variant="h2" sx={{ letterSpacing: '-1.5px', color: 'text.primary', fontWeight: 700 }}>
               {profile.name}
             </Typography>
-            <Box
-              component="img"
-              src="/assets/verification-badge.svg"
-              alt="Verified"
-              sx={{ width: 28, height: 28, mt: 1 }}
-            />
+            {profile.isVerified && (
+              <Box
+                component="img"
+                src="/assets/verification-badge.svg"
+                alt="Verified"
+                sx={{ width: 28, height: 28, mt: 1 }}
+              />
+            )}
          </Stack>
          
          <Typography variant="body1" color="text.primary" sx={{ fontSize: '1.25rem', maxWidth: 400, mx: { xs: 'auto', md: 0 }, lineHeight: 1.5, mb: 4, opacity: 0.9 }}>
@@ -132,16 +152,31 @@ export function ProfileSection() {
          </Typography>
 
          <Stack direction="row" sx={{ gap: 2, justifyContent: { xs: 'center', md: 'flex-start' } }}>
-           <Magnetic>
-             <Button variant="contained" color="primary" size="large" sx={{ px: 5, py: 1.2 }}>
-               Suivre
-             </Button>
-           </Magnetic>
-           <Magnetic magneticPull={0.15}>
-             <Button variant="outlined" size="large" sx={{ px: 5, py: 1.2 }}>
-               Contacter
-             </Button>
-           </Magnetic>
+           {!isOwnProfile && (
+             <>
+               <Magnetic>
+                 <Button
+                   variant="contained"
+                   color="primary"
+                   size="large"
+                   sx={{ px: 5, py: 1.2 }}
+                   onClick={() => guardedNavigate(`/u/${profile.username ?? ''}/follow`)}
+                 >
+                   Suivre
+                 </Button>
+               </Magnetic>
+               <Magnetic magneticPull={0.15}>
+                 <Button
+                   variant="outlined"
+                   size="large"
+                   sx={{ px: 5, py: 1.2 }}
+                   onClick={() => guardedNavigate(`/u/${profile.username ?? ''}/contact`)}
+                 >
+                   Contacter
+                 </Button>
+               </Magnetic>
+             </>
+           )}
          </Stack>
       </Box>
 

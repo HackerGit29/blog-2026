@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../integrations/supabase/client';
 import { FileText, Users, Eye, Search } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
   return (
@@ -24,12 +25,18 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
 }
 
 export function AdminDashboard() {
+  const { user } = useAuth();
   const { data: articles } = useQuery({
-    queryKey: ['admin-stats'],
+    queryKey: ['admin-stats', user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('admin_articles').select('id, status, media_type');
+      if (!user) return [];
+      const { data } = await supabase
+        .from('admin_articles')
+        .select('id, status, media_type')
+        .eq('author_id', user.id);
       return data as any[] || [];
     },
+    enabled: !!user,
   });
 
   const totalArticles = articles?.length || 0;

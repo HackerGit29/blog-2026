@@ -15,7 +15,7 @@ export function Login() {
   const [submitting, setSubmitting] = useState(false);
 
   if (authLoading) return null;
-  if (user) { navigate('/admin', { replace: true }); return null; }
+  if (user) { navigate('/', { replace: true }); return null; }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ export function Login() {
         setIsRegister(false);
       } else {
         await signInWithEmail(email, password);
-        navigate('/admin', { replace: true });
+        navigate('/', { replace: true });
       }
     } catch (err: any) {
       setError(err.message || 'Erreur de connexion');

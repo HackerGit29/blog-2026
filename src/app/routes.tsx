@@ -1,47 +1,127 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+
+// Pages publiques
 import { PortfolioHome } from '../pages/PortfolioHome';
 import { Blog } from '../pages/Blog';
 import { BlogArticle } from '../pages/BlogArticle';
 import { BlogVideos } from '../pages/BlogVideos';
-import { AdminContent } from '../pages/AdminContent';
+
+// Auth
 import { Login } from '../pages/auth/Login';
+
+// Admin
+import { AdminContent } from '../pages/AdminContent';
 import { AdminLayout } from '../pages/admin/AdminLayout';
 import { AdminDashboard } from '../pages/admin/Dashboard';
 import { ArticleManager } from '../pages/admin/ArticleManager';
 import { AdminVideos } from '../pages/admin/AdminVideos';
 import { AdminCommunity } from '../pages/admin/AdminCommunity';
 import { AdminSettings } from '../pages/admin/AdminSettings';
+import { AdminMessages } from '../components/admin/AdminMessages';
+import { AdminNotifications } from '../components/admin/AdminNotifications';
+
+// Inbox
+import { Inbox } from '../pages/Inbox';
+import { Banned } from '../pages/Banned';
+
+// Guards
 import { AuthGuard } from '../components/auth/AuthGuard';
 import { AdminGuard } from '../components/auth/AdminGuard';
+import { SuperAdminGuard } from '../components/auth/SuperAdminGuard';
+import { RootRedirect } from '../components/auth/RootRedirect';
 
+/**
+ * Table de routage de l'application.
+ *
+ * Hiérarchie des accès :
+ *   Public (par tenant) → /:user, /:user/blog, /:user/blog/:slug, /:user/videos
+ *   Auth               → /login, /inbox, /banned
+ *   Admin              → /admin/*
+ *   SuperAdmin only    → /admin/community
+ *
+ * Route racine `/` :
+ *   Connecté → redirige vers /:user (profil public)
+ *   Invité   → profil par défaut du store
+ *
+ * Le segment `:user` identifie le tenant (ex: "admin"). Toutes les pages
+ * publiques sont scopées par tenant.
+ */
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<PortfolioHome />} />
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/videos" element={<BlogVideos />} />
-      <Route path="/blog/:slug" element={<BlogArticle />} />
+      {/* ── Racine ──────────────────────────────────────────────── */}
+      <Route path="/" element={<RootRedirect />} />
 
+      {/* ── Auth ────────────────────────────────────────────────── */}
       <Route path="/login" element={<Login />} />
 
-      <Route path="/admin" element={
-        <AuthGuard>
-          <AdminGuard>
-            <AdminLayout />
-          </AdminGuard>
-        </AuthGuard>
-      }>
+      {/* ── Inbox (auth requis) ─────────────────────────────────── */}
+      <Route
+        path="/inbox"
+        element={
+          <AuthGuard>
+            <Inbox />
+          </AuthGuard>
+        }
+      />
+
+      {/* ── Banned ──────────────────────────────────────────────── */}
+      <Route path="/banned" element={<Banned />} />
+
+      {/* ── Admin (role = admin) ────────────────────────────────── */}
+      <Route
+        path="/admin"
+        element={
+          <AuthGuard>
+            <AdminGuard>
+              <AdminLayout />
+            </AdminGuard>
+          </AuthGuard>
+        }
+      >
         <Route index element={<AdminDashboard />} />
         <Route path="articles" element={<ArticleManager />} />
         <Route path="videos" element={<AdminVideos />} />
-        <Route path="community" element={<AdminCommunity />} />
         <Route path="settings" element={<AdminSettings />} />
+        <Route path="messages" element={<AdminMessages />} />
+        <Route path="notifications" element={<AdminNotifications />} />
+
+        {/* SuperAdmin uniquement */}
+        <Route
+          path="community"
+          element={
+            <SuperAdminGuard>
+              <AdminCommunity />
+            </SuperAdminGuard>
+          }
+        />
       </Route>
 
-      <Route path="/admin/content" element={<AuthGuard><AdminGuard><AdminContent /></AdminGuard></AuthGuard>} />
+      {/* Legacy */}
+      <Route
+        path="/admin/content"
+        element={
+          <AuthGuard>
+            <AdminGuard>
+              <AdminContent />
+            </AdminGuard>
+          </AuthGuard>
+        }
+      />
 
-      <Route path="*" element={<Navigate to="/blog" replace />} />
+      {/* ── Profil public /:user ────────────────────────────────── */}
+      <Route path="/:user" element={<PortfolioHome />} />
+
+      {/* ── Blog du tenant /:user/blog ──────────────────────────── */}
+      <Route path="/:user/blog" element={<Blog />} />
+      <Route path="/:user/blog/:slug" element={<BlogArticle />} />
+
+      {/* ── Vidéos du tenant /:user/videos ──────────────────────── */}
+      <Route path="/:user/videos" element={<BlogVideos />} />
+
+      {/* ── 404 ─────────────────────────────────────────────────── */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

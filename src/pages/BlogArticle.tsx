@@ -10,13 +10,15 @@ import { getTutorialEnhancement } from '../data/tutorialEnhancements';
 import { MicrosoftBanners } from '../components/blog/MicrosoftBanners';
 import { getMicrosoftTech } from '../lib/microsoft/content';
 import { SEOHead, BlogPostingJsonLd } from '../components/SEOHead';
+import { createSafeMarkup } from '../lib/sanitize';
 
 export function BlogArticle() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, user } = useParams<{ slug: string; user: string }>();
   const navigate = useNavigate();
   const { data, isLoading, error } = useBlogArticle(slug || '');
   const article = data as any;
   const tech = getMicrosoftTech(article?.slug);
+  const base = `/${user ?? 'admin'}`;
 
   if (isLoading) {
     return (
@@ -33,7 +35,7 @@ export function BlogArticle() {
       <BlogLayout>
         <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
           <Typography variant="h5" color="error" gutterBottom>Article non trouvé</Typography>
-          <Button onClick={() => navigate('/blog')} variant="contained" sx={{ mt: 2 }}>Retour au blog</Button>
+          <Button onClick={() => navigate(`${base}/blog`)} variant="contained" sx={{ mt: 2 }}>Retour au blog</Button>
         </Container>
       </BlogLayout>
     );
@@ -47,15 +49,12 @@ export function BlogArticle() {
       })
     : '';
 
-  // Safe HTML rendering for admin content
-  const createMarkup = (html: string) => {
-    return { __html: html }; // In a real app, wrap with DOMPurify
-  };
+  // HTML assaini via DOMPurify — protège contre les injections XSS
 
   const isVideoTutorial = article.media_type === 'video';
   const enhancement = isVideoTutorial ? getTutorialEnhancement(article.slug) : null;
 
-  const articleUrl = `https://benji-aka-dev.site/blog/${article.slug}`;
+  const articleUrl = `https://benji-aka-dev.site${base}/blog/${article.slug}`;
 
   return (
     <>
@@ -80,7 +79,7 @@ export function BlogArticle() {
         {/* Universal Back Navigation */}
         <Button 
           startIcon={<ArrowBack />} 
-          onClick={() => navigate(isVideoTutorial ? '/blog/videos' : '/blog')}
+          onClick={() => navigate(isVideoTutorial ? `${base}/videos` : `${base}/blog`)}
           sx={{ mb: 4, color: 'text.secondary', fontWeight: 700 }}
         >
           {isVideoTutorial ? 'Retour aux tutoriels' : 'Retour au blog'}
@@ -147,7 +146,7 @@ export function BlogArticle() {
 
             <Box 
               className="markdown-body" 
-              dangerouslySetInnerHTML={createMarkup(article.content || '')} 
+              dangerouslySetInnerHTML={createSafeMarkup(article.content || '')}
               sx={{ 
                 fontSize: '1.125rem', 
                 color: 'text.primary',

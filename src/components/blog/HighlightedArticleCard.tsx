@@ -1,9 +1,11 @@
 import React from 'react';
 import { Card, Typography, Box, Chip, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export function HighlightedArticleCard({ article }: { article: any }) {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
 
   if (!article) return null;
 
@@ -47,7 +49,7 @@ export function HighlightedArticleCard({ article }: { article: any }) {
       <Box sx={{ textAlign: 'center' }}>
         <Button 
           variant="contained" 
-          onClick={() => navigate(`/blog/${article.slug}`)}
+          onClick={() => navigate(`${base}/blog/${article.slug}`)}
           sx={{ px: 4, py: 1 }}
         >
           Lire la suite

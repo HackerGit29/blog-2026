@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Box, Chip, IconButton } from '@mui/material';
 import BookmarkBorder from '@mui/icons-material/BookmarkBorder';
 import PlayArrow from '@mui/icons-material/PlayArrow';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 
 export interface ArticleCardProps {
@@ -12,6 +12,8 @@ export interface ArticleCardProps {
 
 export function ArticleCard({ article, featured = false }: ArticleCardProps) {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
 
   const formattedDate = article.published_at 
     ? new Date(article.published_at).toLocaleDateString('fr-FR', {
@@ -36,7 +38,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
           cursor: 'pointer',
           position: 'relative'
         }}
-        onClick={() => navigate(`/blog/${article.slug}`)}
+        onClick={() => navigate(`${base}/blog/${article.slug}`)}
       >
       <Box sx={{ position: 'relative' }}>
         <CardMedia

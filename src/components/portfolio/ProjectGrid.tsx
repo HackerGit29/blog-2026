@@ -1,14 +1,16 @@
 import React from 'react';
 import { Box, Stack, Typography, Grid } from '@mui/material';
 import { useBlogArticles } from '../../hooks/useBlogArticles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function ArticleCard({ article }: { article: any }) {
   const navigate = useNavigate();
+  const { user } = useParams<{ user: string }>();
+  const base = `/${user ?? 'admin'}`;
 
   return (
     <Box
-      onClick={() => navigate(`/blog/${article.slug}`)}
+      onClick={() => navigate(`${base}/blog/${article.slug}`)}
       sx={{ cursor: 'pointer', '&:hover .img-container': { transform: 'translateY(-6px)', boxShadow: '0 16px 32px rgba(0,0,0,0.06)' } }}
     >
       <Box

@@ -98,13 +98,26 @@ Sitemap XML dynamique listant toutes les pages et articles publiés.
 
 ## Base de données (Supabase)
 
-- **`admin_articles`** : Articles de blog (titre, slug, contenu HTML, image/vidéo, catégorie, tags, statut, date publication)
+- **`admin_articles`** : Articles de blog (titre, slug, contenu HTML, image/vidéo, catégorie, tags, statut, date publication, author_id)
 - **`blog_categories`** : Catégories (nom, slug, description, icône, couleur)
 - **`newsletter_subscribers`** : Abonnés newsletter (email, source, statut)
-- **`user_roles`** : Rôles utilisateur (uid, role)
-- **`user_profiles`** : Profils utilisateur (name, title, location, avatar_url, socials, stats) — synchronisé avec le store Zustand (cache localStorage)
+- **`user_roles`** : Rôles utilisateur (uid, role) — enum: `superadmin`, `admin`, `moderator`, `user`
+- **`user_profiles`** : Profils utilisateur (name, title, location, avatar_url, socials, stats, is_verified, is_banned, username)
+- **`messages`** : Messages in-app (title, body, cover, CTA, status, author_id)
+- **`message_reads`** : Statut de lecture des messages
+- **`notifications`** : Notifications (kind, title, body, icon, CTA, author_id)
+- **`notification_reads`** : Statut de lecture des notifications
 
 Vue `article_list` : jointure admin_articles + blog_categories, filtrée sur is_published = true.
+
+### Hiérarchie des rôles
+
+| Rôle | Accès |
+|------|-------|
+| `superadmin` | Tout (community, ban, gestion rôles) |
+| `admin` | Dashboard + propres articles/vidéos/messages/notifications |
+| `user` | Profil public, messages reçus, notifications |
+| `banned` | Bloqué (is_banned=true) |
 
 ---
 
@@ -116,7 +129,7 @@ cp .env.example .env   # Éditer avec clés Supabase + Turnstile
 npm run dev             # → http://0.0.0.0:3000
 npm run build           # → dist/
 npm run lint            # tsc --noEmit
-npx supabase db push    # Appliquer les migrations
+supabase db push        # Appliquer les migrations
 ```
 
 ### Variables d'environnement

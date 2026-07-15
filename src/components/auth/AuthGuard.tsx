@@ -2,11 +2,13 @@ import React from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useRole } from '../../hooks/useRole';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const { isBanned, isLoading: roleLoading } = useRole();
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
@@ -15,5 +17,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) return <Navigate to="/login" replace />;
+  if (isBanned) return <Navigate to="/banned" replace />;
   return <>{children}</>;
 }
