@@ -3,9 +3,10 @@ import { Box, Typography, Button, TextField, Paper, CircularProgress, Alert, use
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Mail as MailIcon, CheckCircle as CheckCircleIcon } from 'lucide-react';
+import { Mail as MailIcon } from 'lucide-react';
 import { useNewsletterSubscribe } from '../../hooks/useNewsletterSubscribe';
 import { TurnstileWidget } from '../TurnstileWidget';
+import { AlertDialog } from '../ui/AlertDialog';
 
 const newsletterSchema = z.object({
   email: z.string().min(1, { message: 'L\'adresse email est requise.' }).email({ message: 'Veuillez entrer une adresse email valide.' }),
@@ -35,6 +36,8 @@ export function BlogNewsletter() {
     setErrorMessage(null);
   }, []);
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const onSubmit = (data: NewsletterFormData) => {
     if (!turnstileToken) {
       setErrorMessage('Veuillez valider le captcha.');
@@ -45,6 +48,7 @@ export function BlogNewsletter() {
     mutate({ email: data.email, turnstileToken }, {
       onSuccess: () => {
         setSuccessMessage('Merci ! Votre inscription à la newsletter a été enregistrée avec succès.');
+        setDialogOpen(true);
         setTurnstileToken(null);
         reset();
       },
@@ -109,77 +113,66 @@ export function BlogNewsletter() {
             alignSelf: 'center'
           }}
         >
-          {successMessage ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 2 }}>
-              <CheckCircleIcon size={40} color={theme.palette.primary.main} style={{ marginBottom: 12 }} />
-              <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                {successMessage}
+          <Box sx={{ position: 'relative', width: '100%' }}>
+            <TextField
+              placeholder="votre@email.com"
+              fullWidth
+              disabled={isPending}
+              {...register('email')}
+              error={!!errors.email}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <Box sx={{ color: 'text.secondary', mr: 1, display: 'flex', alignItems: 'center' }}>
+                      <MailIcon size={18} />
+                    </Box>
+                  ),
+                }
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '30px',
+                  border: '1px solid',
+                  borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#1A1A1A',
+                  bgcolor: isDark ? 'background.default' : '#FFFFFF',
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                  '&:hover fieldset': {
+                    border: 'none',
+                  },
+                  '&.Mui-focused fieldset': {
+                    border: 'none',
+                  },
+                }
+              }}
+            />
+            {errors.email && (
+              <Typography variant="caption" sx={{ color: 'error.main', display: 'block', mt: 0.5, ml: 2, fontWeight: 600 }}>
+                {errors.email.message}
               </Typography>
-            </Box>
-          ) : (
-            <>
-              <Box sx={{ position: 'relative', width: '100%' }}>
-                <TextField
-                  placeholder="votre@email.com"
-                  fullWidth
-                  disabled={isPending}
-                  {...register('email')}
-                  error={!!errors.email}
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <Box sx={{ color: 'text.secondary', mr: 1, display: 'flex', alignItems: 'center' }}>
-                          <MailIcon size={18} />
-                        </Box>
-                      ),
-                    }
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '30px',
-                      border: '1px solid',
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#1A1A1A',
-                      bgcolor: isDark ? 'background.default' : '#FFFFFF',
-                      '& fieldset': {
-                        border: 'none',
-                      },
-                      '&:hover fieldset': {
-                        border: 'none',
-                      },
-                      '&.Mui-focused fieldset': {
-                        border: 'none',
-                      },
-                    }
-                  }}
-                />
-                {errors.email && (
-                  <Typography variant="caption" sx={{ color: 'error.main', display: 'block', mt: 0.5, ml: 2, fontWeight: 600 }}>
-                    {errors.email.message}
-                  </Typography>
-                )}
-              </Box>
+            )}
+          </Box>
 
-              <TurnstileWidget
-                siteKey={import.meta.env.VITE_TURNSTILE_SITEKEY}
-                onVerify={onTurnstileVerify}
-                onExpire={() => setTurnstileToken(null)}
-                onError={() => setTurnstileToken(null)}
-              />
+          <TurnstileWidget
+            siteKey={import.meta.env.VITE_TURNSTILE_SITEKEY}
+            onVerify={onTurnstileVerify}
+            onExpire={() => setTurnstileToken(null)}
+            onError={() => setTurnstileToken(null)}
+          />
 
-              <Button 
-                type="submit"
-                variant="contained" 
-                color="primary"
-                disabled={isPending || !turnstileToken}
-                sx={{ 
-                  py: 1.5,
-                  fontSize: '0.95rem',
-                }}
-              >
-                {isPending ? <CircularProgress size={24} color="inherit" /> : 'S\'inscrire gratuitement'}
-              </Button>
-            </>
-          )}
+          <Button 
+            type="submit"
+            variant="contained" 
+            color="primary"
+            disabled={isPending}
+            sx={{ 
+              py: 1.5,
+              fontSize: '0.95rem',
+            }}
+          >
+            {isPending ? <CircularProgress size={24} color="inherit" /> : 'S\'inscrire gratuitement'}
+          </Button>
 
           {errorMessage && (
             <Alert severity="error" sx={{ borderRadius: '12px', mt: 1, fontWeight: 500 }}>
@@ -188,6 +181,16 @@ export function BlogNewsletter() {
           )}
         </Box>
       </GridWrapper>
+
+      <AlertDialog
+        open={dialogOpen}
+        onConfirm={() => setDialogOpen(false)}
+        onCancel={() => setDialogOpen(false)}
+        title="Inscription confirmée !"
+        description={successMessage ?? ''}
+        confirmText="Super"
+        confirmColor="success"
+      />
     </Paper>
   );
 }
