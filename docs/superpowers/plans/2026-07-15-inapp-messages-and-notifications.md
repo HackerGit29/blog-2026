@@ -2240,8 +2240,11 @@ Build: `npx tsc --noEmit` + `npm run build`
 
 **Key design decisions** (recap):
 - Supabase Realtime, not Socket.IO (Cloudflare Workers compat)
-- Max 50 items in popovers (no pagination in widget)
+- **Pagination infinie** dans les popovers (scroll infini + bouton "Voir plus")
 - 5 CTA targets: `article`, `video`, `external`, `message`, `none`
 - Optimistic read marking with batch sync
 - Newsletter is downstream of `messages` table (one-way sync)
-- No archive UI for admin (hard delete)
+- **Soft delete** côté admin (champ `deleted_at` sur messages et notifications)
+- **Realtime résilient** : reconnect exponentiel + polling fallback avec backoff
+
+**Aucune dette acceptée.** Toutes les limitations YAGNI retirées : pagination complète, archivage, reconnect intelligent.
