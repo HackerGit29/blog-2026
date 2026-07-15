@@ -8,8 +8,8 @@ import { useProfile } from '../../hooks/useProfile';
 import { usePortfolioStore } from '../../store/portfolio';
 import { useInboxStore } from '../../store/inbox';
 import { UserSettings } from './UserSettings';
-import { NotificationPopover } from '../inbox/NotificationPopover';
-import { MessagePopover } from '../inbox/MessagePopover';
+import { NotificationCenter } from '../inbox/NotificationCenter';
+import { MessageCenter } from '../inbox/MessageCenter';
 import { UnreadBadge } from '../inbox/UnreadBadge';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -25,8 +25,8 @@ export function Header() {
   const notifUnread = useInboxStore((s) => s.notifUnread);
   const msgUnread = useInboxStore((s) => s.msgUnread);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [notifAnchor, setNotifAnchor] = useState<HTMLElement | null>(null);
-  const [msgAnchor, setMsgAnchor] = useState<HTMLElement | null>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [msgOpen, setMsgOpen] = useState(false);
 
   useGSAP(() => {
     const tl = gsap.timeline();
@@ -84,7 +84,7 @@ export function Header() {
                 <IconButton
                   size="small"
                   sx={{ color: 'text.primary', display: { xs: 'none', sm: 'inline-flex' }, position: 'relative' }}
-                  onClick={(e) => setMsgAnchor(e.currentTarget)}
+                  onClick={() => setMsgOpen(true)}
                 >
                   <Mail size={22} />
                   <UnreadBadge count={msgUnread} />
@@ -94,7 +94,7 @@ export function Header() {
                 <IconButton
                   size="small"
                   sx={{ color: 'text.primary', position: 'relative' }}
-                  onClick={(e) => setNotifAnchor(e.currentTarget)}
+                  onClick={() => setNotifOpen(true)}
                 >
                   <Bell size={22} />
                   <UnreadBadge count={notifUnread} />
@@ -136,14 +136,8 @@ export function Header() {
       </Box>
 
       {settingsOpen && <UserSettings onClose={() => setSettingsOpen(false)} />}
-      <NotificationPopover
-        anchorEl={notifAnchor}
-        onClose={() => setNotifAnchor(null)}
-      />
-      <MessagePopover
-        anchorEl={msgAnchor}
-        onClose={() => setMsgAnchor(null)}
-      />
+      <NotificationCenter open={notifOpen} onClose={() => setNotifOpen(false)} />
+      <MessageCenter open={msgOpen} onClose={() => setMsgOpen(false)} />
     </>
   );
 }
