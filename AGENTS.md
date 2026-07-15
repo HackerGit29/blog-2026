@@ -7,7 +7,8 @@
 | `npm run dev` | Dev server on `0.0.0.0:3000` |
 | `npm run lint` | `tsc --noEmit` (only typecheck, no linter) |
 | `npm run build` | `vite build` → `dist/` |
-| `npx supabase db push` | Apply Supabase migrations |
+| `supabase db push` | Apply Supabase migrations |
+| `supabase gen types typescript --linked > src/integrations/supabase/types.ts` | Regenerate DB types |
 | `npm run clean` | `rm -rf dist server.js` |
 
 No test framework configured.
@@ -38,15 +39,24 @@ Renamed props:
 ## Architecture
 
 - **API**: Cloudflare Pages Functions in `functions/api/` (`/api/articles`, `/api/newsletter`). `PagesFunction<Env>` interface.
-- **DB**: Supabase. Migrations in `supabase/migrations/`. Tables: `admin_articles`, `blog_categories`, `newsletter_subscribers`, `user_roles`.
-- **Portfolio**: GSAP animations, zustand store (`src/store/portfolio.ts`), profile data in `src/data/portfolio.ts`.
+- **DB**: Supabase. Migrations in `supabase/migrations/`. Tables: `admin_articles`, `blog_categories`, `newsletter_subscribers`, `user_roles`, `user_profiles`.
+- **Portfolio**: GSAP animations, zustand store (`src/store/portfolio.ts`) with `persist` middleware (localStorage cache). Profile data synced to `user_profiles` table via `useProfile` hook.
+- **Header**: Shows "Se connecter" when logged out, avatar + settings when logged in. `UserSettings` dialog edits profile (name, title, socials, stats). Admin link visible via `useRole()` JWT check.
 - **Admin**: Auth via Supabase email/password. Role check via `user_roles` table. BlockNote v6 editor (sync `tryParseHTMLToBlocks`, no `.then()`).
-- **Images**: Static SVGs in `public/assets/`, referenced as `/assets/*.svg`.
+- **Images**: Static SVGs in `public/assets/`, referenced as `/assets/*.svg`. User avatars in Supabase Storage bucket `avatars`.
 - **SEO**: `SEOHead.tsx` for meta/OG/Twitter/JSON-LD. Dynamic sitemap at `/sitemap.xml`.
+
+## Key stores
+
+| Store | File | Purpose |
+|-------|------|---------|
+| `usePortfolioStore` | `src/store/portfolio.ts` | activeTab + profile data, persisted to localStorage |
 
 ## Gotchas
 
-- `tsc --noEmit` passes even with some MUI v9 type mismatches (pre-existing, ~45 errors). Build may still succeed.
+- `tsc --noEmit` passes even with some MUI v9 type mismatches (pre-existing, ~9 errors from Cloudflare Functions). Build succeeds.
 - No CSS framework — MUI + Emotion + inline Tailwind (vite plugin, minimal use).
 - `motion` package (formerly framer-motion) used for AnimatedTabs, ArticleListItem animations.
-- Cloudflare Functions (`functions/`, `supabase/functions/`) use `PagesFunction` type from Cloudflare Workers runtime — tsc --noEmit reports `Cannot find name 'PagesFunction'` (false positive, works at runtime).
+- Cloudflare Functions (`functions/`, `supabase/functions/`) use `PagesFunction` type from Cloudflare Workers runtime — tsc reports `Cannot find name 'PagesFunction'` (false positive, works at runtime).
+- GSAP SVG flip animation chains across Instagram → GitHub → Discord in a loop.
+- Profile data lives in zustand (localStorage cache) + Supabase `user_profiles` table. Always write to both.

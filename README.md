@@ -102,6 +102,7 @@ Sitemap XML dynamique listant toutes les pages et articles publiés.
 - **`blog_categories`** : Catégories (nom, slug, description, icône, couleur)
 - **`newsletter_subscribers`** : Abonnés newsletter (email, source, statut)
 - **`user_roles`** : Rôles utilisateur (uid, role)
+- **`user_profiles`** : Profils utilisateur (name, title, location, avatar_url, socials, stats) — synchronisé avec le store Zustand (cache localStorage)
 
 Vue `article_list` : jointure admin_articles + blog_categories, filtrée sur is_published = true.
 
