@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, Button, Avatar } from '@mui/material';
+import { Popover, Box, Typography, TextField, Button, Avatar, Stack, Divider } from '@mui/material';
 import { Shield, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioStore } from '../../store/portfolio';
@@ -7,10 +7,12 @@ import { useRole } from '../../hooks/useRole';
 import { useAuth } from '../../hooks/useAuth';
 
 interface UserSettingsProps {
+  anchorEl: HTMLElement | null;
   onClose: () => void;
 }
 
-export function UserSettings({ onClose }: UserSettingsProps) {
+export function UserSettings({ anchorEl, onClose }: UserSettingsProps) {
+  const open = Boolean(anchorEl);
   const profile = usePortfolioStore((s) => s.profile);
   const updateProfile = usePortfolioStore((s) => s.updateProfile);
   const { saveToSupabase } = useProfile();
@@ -25,9 +27,9 @@ export function UserSettings({ onClose }: UserSettingsProps) {
       name: data.get('name') as string,
       title: data.get('title') as string,
       location: data.get('location') as string,
-      followers: data.get('followers') as string,
-      following: data.get('following') as string,
-      likes: data.get('likes') as string,
+      followers: profile.followers,
+      following: profile.following,
+      likes: profile.likes,
       avatarUrl: data.get('avatarUrl') as string,
       socials: {
         discord: data.get('discord') as string,
@@ -47,55 +49,56 @@ export function UserSettings({ onClose }: UserSettingsProps) {
   };
 
   return (
-    <Box
-      sx={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1300,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        bgcolor: 'rgba(0,0,0,0.6)',
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      slotProps={{
+        paper: {
+          sx: {
+            bgcolor: 'background.default',
+            backgroundImage: 'none',
+            borderRadius: 0,
+            border: '1px solid',
+            borderColor: 'divider',
+            width: 560,
+            maxWidth: 'calc(100vw - 32px)',
+            mt: 1,
+          },
+        },
       }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <Box
-        component="form"
-        onSubmit={handleSave}
-        sx={{
-          bgcolor: 'background.paper',
-          borderRadius: '24px',
-          p: 4,
-          width: '90%',
-          maxWidth: 520,
-          maxHeight: '90vh',
-          overflow: 'auto',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-          <Avatar src={profile.avatarUrl} sx={{ width: 56, height: 56 }} />
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h5" sx={{ fontWeight: 800 }}>Paramètres du profil</Typography>
-            <Typography variant="body2" color="text.secondary">{profile.name}</Typography>
+      <Box component="form" onSubmit={handleSave} sx={{ p: 2.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5 }}>
+          <Avatar src={profile.avatarUrl} sx={{ width: 48, height: 48 }} />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.2 }}>Paramètres du profil</Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>{profile.name}</Typography>
           </Box>
         </Box>
 
-        <TextField name="name" label="Nom" defaultValue={profile.name} fullWidth sx={{ mb: 2 }} />
-        <TextField name="title" label="Titre" defaultValue={profile.title} fullWidth sx={{ mb: 2 }} />
-        <TextField name="location" label="Localisation" defaultValue={profile.location} fullWidth sx={{ mb: 2 }} />
-        <TextField name="avatarUrl" label="URL de l'avatar" defaultValue={profile.avatarUrl} fullWidth sx={{ mb: 2 }} />
+        <Typography variant="overline" sx={{ color: 'text.disabled', fontWeight: 700, letterSpacing: 1 }}>Identité</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, mt: 0.5, mb: 2 }}>
+          <TextField name="name" label="Nom" defaultValue={profile.name} size="small" />
+          <TextField name="title" label="Titre" defaultValue={profile.title} size="small" />
+          <TextField name="location" label="Localisation" defaultValue={profile.location} size="small" />
+          <TextField name="avatarUrl" label="URL avatar" defaultValue={profile.avatarUrl} size="small" />
+        </Box>
 
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, mt: 2 }}>Réseaux sociaux</Typography>
-        <TextField name="discord" label="Discord" defaultValue={profile.socials.discord} fullWidth sx={{ mb: 2 }} />
-        <TextField name="github" label="GitHub" defaultValue={profile.socials.github} fullWidth sx={{ mb: 2 }} />
-        <TextField name="instagram" label="Instagram" defaultValue={profile.socials.instagram} fullWidth sx={{ mb: 2 }} />
+        <Typography variant="overline" sx={{ color: 'text.disabled', fontWeight: 700, letterSpacing: 1 }}>Réseaux</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1.5, mt: 0.5, mb: 2 }}>
+          <TextField name="discord" label="Discord" defaultValue={profile.socials.discord} size="small" />
+          <TextField name="github" label="GitHub" defaultValue={profile.socials.github} size="small" />
+          <TextField name="instagram" label="Instagram" defaultValue={profile.socials.instagram} size="small" />
+        </Box>
 
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, mt: 2 }}>Statistiques</Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <TextField name="followers" label="Abonnés" defaultValue={profile.followers} sx={{ flex: 1 }} />
-          <TextField name="following" label="Abonnements" defaultValue={profile.following} sx={{ flex: 1 }} />
-          <TextField name="likes" label="J'aime" defaultValue={profile.likes} sx={{ flex: 1 }} />
+        <Typography variant="overline" sx={{ color: 'text.disabled', fontWeight: 700, letterSpacing: 1 }}>Statistiques</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1.5, mt: 0.5, mb: 2 }}>
+          <TextField label="Abonnés" value={profile.followers} disabled size="small" />
+          <TextField label="Abonnements" value={profile.following} disabled size="small" />
+          <TextField label="J'aime" value={profile.likes} disabled size="small" />
         </Box>
 
         {isAdmin && (
@@ -105,21 +108,23 @@ export function UserSettings({ onClose }: UserSettingsProps) {
             color="primary"
             startIcon={<Shield size={18} />}
             onClick={() => { onClose(); navigate('/admin'); }}
-            sx={{ mt: 3, py: 1.2, fontWeight: 700 }}
+            sx={{ mt: 1, py: 1, fontWeight: 700 }}
           >
             Accéder au panneau d'administration
           </Button>
         )}
 
-        <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-          <Button variant="outlined" color="error" startIcon={<LogOut size={16} />} onClick={handleSignOut}>
+        <Divider sx={{ my: 2 }} />
+
+        <Stack direction="row" sx={{ gap: 1 }}>
+          <Button variant="outlined" color="error" size="small" startIcon={<LogOut size={16} />} onClick={handleSignOut}>
             Déconnexion
           </Button>
           <Box sx={{ flex: 1 }} />
-          <Button variant="outlined" onClick={onClose}>Annuler</Button>
-          <Button type="submit" variant="contained" color="primary">Enregistrer</Button>
-        </Box>
+          <Button variant="outlined" size="small" onClick={onClose}>Annuler</Button>
+          <Button type="submit" variant="contained" size="small">Enregistrer</Button>
+        </Stack>
       </Box>
-    </Box>
+    </Popover>
   );
 }
