@@ -12,7 +12,7 @@ interface UIState {
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  mode: 'light', // Keep light mode as default for the mockup aesthetics
+  mode: 'dark',
   toggleMode: () => set((state) => ({ mode: state.mode === 'light' ? 'dark' : 'light' })),
 }));
 
