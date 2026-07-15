@@ -140,6 +140,54 @@ export type Database = {
         }
         Relationships: []
       }
+      message_reads: {
+        Row: { message_id: string; read_at: string | null; user_id: string }
+        Insert: { message_id: string; read_at?: string | null; user_id: string }
+        Update: { message_id?: string; read_at?: string | null; user_id?: string }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          author_id: string | null
+          body: string
+          cover_url: string | null
+          cta_label: string | null
+          cta_target: string | null
+          cta_url: string | null
+          id: string
+          sent_at: string | null
+          status: string | null
+          title: string
+          created_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          cover_url?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          cta_url?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string | null
+          title: string
+          created_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          cover_url?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          cta_url?: string | null
+          id?: string
+          sent_at?: string | null
+          status?: string | null
+          title?: string
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string | null
@@ -227,6 +275,54 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_reads: {
+        Row: { notification_id: string; read_at: string | null; user_id: string }
+        Insert: { notification_id: string; read_at?: string | null; user_id: string }
+        Update: { notification_id?: string; read_at?: string | null; user_id?: string }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          cta_label: string | null
+          cta_target: string | null
+          cta_url: string | null
+          icon: string | null
+          id: string
+          kind: Database["public"]["Enums"]["notif_kind"]
+          metadata: Json | null
+          title: string
+          user_id: string
+          created_at: string | null
+        }
+        Insert: {
+          body?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          cta_url?: string | null
+          icon?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["notif_kind"]
+          metadata?: Json | null
+          title: string
+          user_id: string
+          created_at?: string | null
+        }
+        Update: {
+          body?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          cta_url?: string | null
+          icon?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["notif_kind"]
+          metadata?: Json | null
+          title?: string
+          user_id?: string
+          created_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       article_list: {
@@ -265,6 +361,7 @@ export type Database = {
       app_role: "admin" | "moderator" | "user"
       article_status: "draft" | "scheduled" | "published" | "archived"
       media_type: "image" | "video"
+      notif_kind: "announcement" | "event" | "article" | "video" | "message" | "system"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -398,6 +495,7 @@ export const Constants = {
       app_role: ["admin", "moderator", "user"],
       article_status: ["draft", "scheduled", "published", "archived"],
       media_type: ["image", "video"],
+      notif_kind: ["announcement", "event", "article", "video", "message", "system"],
     },
   },
 } as const
