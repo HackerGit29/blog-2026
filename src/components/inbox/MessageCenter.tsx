@@ -3,7 +3,6 @@ import {
   Dialog,
   AppBar,
   Toolbar,
-  IconButton,
   Stack,
   Button,
   Typography,
@@ -12,7 +11,6 @@ import {
   Slide,
 } from '@mui/material';
 import type { TransitionProps } from '@mui/material/transitions';
-import { X } from 'lucide-react';
 import { useMessages } from '../../hooks/useMessages';
 import { useMessageReads } from '../../hooks/useMessageReads';
 import { MessageItem } from './MessageItem';
@@ -57,7 +55,7 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
               backgroundImage: 'none',
               height: { xs: '100%', sm: 'auto' },
               maxHeight: { sm: '80vh' },
-              borderRadius: { xs: 0, sm: 3 },
+              borderRadius: 0,
               m: { xs: 0, sm: 2 },
             },
           },
@@ -83,9 +81,6 @@ export function MessageCenter({ open, onClose }: MessageCenterProps) {
                 Tout marquer comme lu
               </Button>
             )}
-            <IconButton edge="end" onClick={onClose} aria-label="close">
-              <X size={20} />
-            </IconButton>
           </Toolbar>
         </AppBar>
 

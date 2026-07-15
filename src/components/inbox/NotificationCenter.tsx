@@ -3,7 +3,6 @@ import {
   Dialog,
   AppBar,
   Toolbar,
-  IconButton,
   Tabs,
   Tab,
   Stack,
@@ -14,7 +13,6 @@ import {
   Slide,
 } from '@mui/material';
 import type { TransitionProps } from '@mui/material/transitions';
-import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useNotificationReads } from '../../hooks/useNotificationReads';
@@ -82,7 +80,7 @@ export function NotificationCenter({ open, onClose }: NotificationCenterProps) {
             backgroundImage: 'none',
             height: { xs: '100%', sm: 'auto' },
             maxHeight: { sm: '80vh' },
-            borderRadius: { xs: 0, sm: 3 },
+            borderRadius: 0,
             m: { xs: 0, sm: 2 },
           },
         },
@@ -103,9 +101,6 @@ export function NotificationCenter({ open, onClose }: NotificationCenterProps) {
               Tout marquer comme lu
             </Button>
           )}
-          <IconButton edge="end" onClick={onClose} aria-label="close">
-            <X size={20} />
-          </IconButton>
         </Toolbar>
         <Tabs
           value={tab}
