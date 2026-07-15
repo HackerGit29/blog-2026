@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { PortfolioHome } from '../pages/PortfolioHome';
 import { Blog } from '../pages/Blog';
 import { BlogArticle } from '../pages/BlogArticle';
 import { BlogVideos } from '../pages/BlogVideos';
@@ -17,7 +18,7 @@ import { AdminGuard } from '../components/auth/AdminGuard';
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/blog" replace />} />
+      <Route path="/" element={<PortfolioHome />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/blog/videos" element={<BlogVideos />} />
       <Route path="/blog/:slug" element={<BlogArticle />} />

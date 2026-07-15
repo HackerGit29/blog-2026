@@ -1,16 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: #F8F7F3;
-  color: #1A1A1A;
+  min-height: 100vh;
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* Custom utility for the subtle gradient background */
 .page-bg-gradient {
   position: absolute;
   top: 0;
@@ -18,24 +28,10 @@ body {
   right: 0;
   height: 700px;
   z-index: -1;
-  background:
+  background: 
     radial-gradient(ellipse 60% 60% at 75% 10%, rgba(255, 226, 19, 0.15) 0%, transparent 80%),
     radial-gradient(ellipse 50% 50% at 25% 20%, rgba(255, 90, 31, 0.1) 0%, transparent 80%),
     linear-gradient(180deg, rgba(9, 9, 11, 0) 0%, rgba(9, 9, 11, 1) 100%);
   background-color: #09090B;
   pointer-events: none;
-}
-
-.markdown-body h1, .markdown-body h2, .markdown-body h3 {
-  font-weight: 600;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
-.markdown-body p {
-  line-height: 1.6;
-  margin-bottom: 1em;
-}
-.markdown-body img {
-  max-width: 100%;
-  border-radius: 8px;
 }
