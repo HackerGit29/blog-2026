@@ -13,39 +13,6 @@ export const PROFILE_DATA = {
   }
 };
 
-export const PROJECTS = [
-  {
-    id: 1,
-    title: 'App Mobile VPN',
-    category: 'Interface Mobile, Recherche',
-    likes: '517',
-    views: '9.3k',
-    imageUrl: 'https://images.unsplash.com/photo-1618761714954-0b8cd0026356?auto=format&fit=crop&w=800&q=80',
-    badges: [],
-    bgColor: '#9ecdf5'
-  },
-  {
-    id: 2,
-    title: 'Dashboard Immobilier',
-    category: 'Interface Web',
-    likes: '983',
-    views: '14k',
-    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-    badges: [{ text: 'UI', color: '#FF5A1F' }],
-    bgColor: '#e3dfd3'
-  },
-  {
-    id: 3,
-    title: 'App Mobile Santé',
-    category: 'Interface Mobile, Branding',
-    likes: '875',
-    views: '13.5k',
-    imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
-    badges: [{ text: 'UI', color: '#FF5A1F' }, { text: 'Br', color: '#6B4EFF' }],
-    bgColor: '#b6d7f0'
-  }
-];
-
 export const NAV_LINKS = [
   { label: 'Designers', href: '#', active: true },
   { label: 'Explorer', href: '#' },

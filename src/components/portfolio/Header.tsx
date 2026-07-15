@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
-import { Box, Stack, Typography, Button, IconButton, Avatar } from '@mui/material';
-import { Sparkles, Mail, Bell, Zap } from 'lucide-react';
-import { NAV_LINKS } from '../../data/portfolio';
+import { Box, Stack, Button, IconButton } from '@mui/material';
+import { Mail, Bell } from 'lucide-react';
 import { Magnetic } from './Magnetic';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
