@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../integrations/supabase/client';
 
 export interface UseBlogArticlesOptions {
   search?: string;
@@ -18,20 +19,61 @@ export interface ArticlesResponse {
   category_counts: Record<string, number>;
 }
 
+async function fetchViaApi(options?: UseBlogArticlesOptions): Promise<ArticlesResponse> {
+  const params = new URLSearchParams();
+  if (options?.page) params.set('page', String(options.page));
+  if (options?.perPage) params.set('per_page', String(options.perPage));
+  if (options?.search) params.set('search', options.search);
+  if (options?.categoryId && options.categoryId !== 'all') params.set('category_id', options.categoryId);
+  if (options?.mediaFilter && options.mediaFilter !== 'all') params.set('media_type', options.mediaFilter);
+
+  const res = await fetch(`/api/articles?${params.toString()}`);
+  if (!res.ok) throw new Error('API error');
+  return res.json();
+}
+
+async function fetchDirect(options?: UseBlogArticlesOptions): Promise<ArticlesResponse> {
+  let query = supabase
+    .from('admin_articles')
+    .select('*', { count: 'exact' })
+    .eq('is_published', true)
+    .order('published_at', { ascending: false });
+
+  if (options?.search) {
+    query = query.or(`title.ilike.%${options.search}%,summary.ilike.%${options.search}%`);
+  }
+  if (options?.categoryId) {
+    query = query.eq('category_id', options.categoryId);
+  }
+
+  const page = options?.page || 1;
+  const perPage = options?.perPage || 9;
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+  query = query.range(from, to);
+
+  const { data, count } = await query;
+
+  return {
+    data: data || [],
+    total: count || 0,
+    total_all: count || 0,
+    page,
+    per_page: perPage,
+    total_pages: Math.ceil((count || 0) / perPage),
+    category_counts: {},
+  };
+}
+
 export function useBlogArticles(options?: UseBlogArticlesOptions) {
   return useQuery({
     queryKey: ['blog_articles', options],
     queryFn: async (): Promise<ArticlesResponse> => {
-      const params = new URLSearchParams();
-      if (options?.page) params.set('page', String(options.page));
-      if (options?.perPage) params.set('per_page', String(options.perPage));
-      if (options?.search) params.set('search', options.search);
-      if (options?.categoryId && options.categoryId !== 'all') params.set('category_id', options.categoryId);
-      if (options?.mediaFilter && options.mediaFilter !== 'all') params.set('media_type', options.mediaFilter);
-
-      const res = await fetch(`/api/articles?${params.toString()}`);
-      if (!res.ok) throw new Error('Erreur lors du chargement des articles');
-      return res.json();
+      try {
+        return await fetchViaApi(options);
+      } catch {
+        return fetchDirect(options);
+      }
     },
   });
 }

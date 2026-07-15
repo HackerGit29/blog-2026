@@ -40,35 +40,41 @@ export function ProfileSection() {
       delay: 0.2 
     });
 
-    gsap.from(textRef.current?.children || [], {
-      y: 30,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.8,
-      ease: "power3.out",
-      delay: 0.2
-    });
-
-    gsap.from('.badge-svg', {
-      scale: 0,
-      opacity: 0,
-      rotation: -90,
-      stagger: 0.1,
-      duration: 1,
-      ease: "back.out(2)",
-      delay: 0.5
-    });
-
-    gsap.utils.toArray('.badge-svg').forEach((badge: any, index: number) => {
-      gsap.to(badge, {
-        y: -6,
-        duration: 1.5 + index * 0.2,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-        delay: index * 0.15
+    const textChildren = textRef.current?.children;
+    if (textChildren?.length) {
+      gsap.from(textChildren, {
+        y: 30,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.8,
+        ease: "power3.out",
+        delay: 0.2
       });
-    });
+    }
+
+    const badges = gsap.utils.toArray('.badge-svg');
+    if (badges.length) {
+      gsap.from(badges, {
+        scale: 0,
+        opacity: 0,
+        rotation: -90,
+        stagger: 0.1,
+        duration: 1,
+        ease: "back.out(2)",
+        delay: 0.5
+      });
+
+      badges.forEach((badge: any, index: number) => {
+        gsap.to(badge, {
+          y: -6,
+          duration: 1.5 + index * 0.2,
+          yoyo: true,
+          repeat: -1,
+          ease: "sine.inOut",
+          delay: index * 0.15
+        });
+      });
+    }
 
   }, { scope: containerRef });
 

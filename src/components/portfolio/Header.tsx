@@ -18,22 +18,29 @@ export function Header() {
       opacity: 0,
       duration: 0.6,
       ease: 'power3.out'
-    })
-    .from(linksRef.current?.children || [], {
-      y: -10,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.4,
-      ease: 'power2.out'
-    }, "-=0.3")
-    .from(actionsRef.current?.children || [], {
-      x: 20,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.4,
-      ease: 'power2.out'
-    }, "-=0.4");
+    });
 
+    const linkChildren = linksRef.current?.children;
+    if (linkChildren?.length) {
+      tl.from(linkChildren, {
+        y: -10,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.4,
+        ease: 'power2.out'
+      }, "-=0.3");
+    }
+
+    const actionChildren = actionsRef.current?.children;
+    if (actionChildren?.length) {
+      tl.from(actionChildren, {
+        x: 20,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 0.4,
+        ease: 'power2.out'
+      }, "-=0.4");
+    }
   }, { scope: headerRef });
 
   return (
