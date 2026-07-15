@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Container, Typography, Grid, Pagination, Chip, Skeleton, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { useParams } from 'react-router-dom';
 import { Header, ProfileSection, ProjectTabs } from '../components/portfolio';
 import { CursorProvider, Cursor } from '../components/portfolio/AnimatedCursor';
 import { usePortfolioStore } from '../store/portfolio';
 import { useBlogArticles } from '../hooks/useBlogArticles';
+import { usePublicProfile } from '../hooks/usePublicProfile';
 import { ArticleCard } from '../components/blog/ArticleCard';
 import { BlogNewsletter } from '../components/blog/BlogNewsletter';
 import { TutorialCard } from '../components/blog/tutorials/TutorialCard';
@@ -14,8 +16,16 @@ import { getTutorialEnhancement } from '../data/tutorialEnhancements';
 const tabs = ['blog', 'videos', 'ressources', 'apropos'];
 
 export function PortfolioHome() {
+  const { username } = useParams<{ username: string }>();
   const activeTab = usePortfolioStore((s) => s.activeTab);
   const currentTab = tabs[activeTab] || 'blog';
+
+  // Charge le profil public du tenant depuis Supabase (route /:username)
+  const { data: publicProfile } = usePublicProfile(username);
+
+  // Le profileOverride est transmis à ProfileSection seulement si on est
+  // sur une route de profil public (/:username). Null sur la route racine.
+  const profileOverride = username ? (publicProfile ?? undefined) : undefined;
 
   return (
     <CursorProvider>
@@ -24,7 +34,7 @@ export function PortfolioHome() {
         <div className="page-bg-gradient" />
         <Container maxWidth="xl" sx={{ pt: 2, px: { xs: 3, md: 8 } }}>
           <Header />
-          <ProfileSection />
+          <ProfileSection profileOverride={profileOverride} />
           <ProjectTabs />
           <TabContent tab={currentTab} />
           <Box sx={{ mt: 8 }}>

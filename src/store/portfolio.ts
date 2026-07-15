@@ -10,6 +10,8 @@ export interface ProfileData {
   likes: string;
   avatarUrl: string;
   socials: { discord: string; github: string; instagram: string };
+  isVerified?: boolean;
+  username?: string;
 }
 
 const defaultProfile: ProfileData = {
@@ -25,6 +27,8 @@ const defaultProfile: ProfileData = {
     github: 'https://github.com/HackerGit29',
     instagram: 'https://instagram.com/mopaossi',
   },
+  isVerified: false,
+  username: 'irene-brooks',
 };
 
 interface PortfolioState {

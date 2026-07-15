@@ -1,6 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
 import { Box, Typography, Button, Chip, alpha } from '@mui/material';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 // ── Fallback UI ──────────────────────────────────────────────────────────────
 
@@ -44,27 +43,6 @@ function ErrorFallback({ error, resetError, componentName }: FallbackProps) {
           pointerEvents: 'none',
         }}
       />
-
-      {/* Icon */}
-      <Box
-        sx={{
-          width: 72,
-          height: 72,
-          borderRadius: '20px',
-          border: '1px solid',
-          borderColor: (theme) =>
-            alpha(theme.palette.primary.main, 0.3),
-          bgcolor: (theme) =>
-            alpha(theme.palette.primary.main, 0.06),
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mb: 3,
-          color: 'primary.main',
-        }}
-      >
-        <AlertTriangle size={32} strokeWidth={1.5} />
-      </Box>
 
       {/* Title */}
       <Typography
@@ -128,7 +106,6 @@ function ErrorFallback({ error, resetError, componentName }: FallbackProps) {
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
         <Button
           variant="contained"
-          startIcon={<RefreshCw size={16} />}
           onClick={resetError}
           sx={{ minWidth: 160 }}
         >
@@ -137,7 +114,6 @@ function ErrorFallback({ error, resetError, componentName }: FallbackProps) {
         {!componentName && (
           <Button
             variant="outlined"
-            startIcon={<Home size={16} />}
             onClick={() => {
               resetError();
               window.location.href = '/';

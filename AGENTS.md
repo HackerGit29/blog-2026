@@ -28,20 +28,28 @@ Renamed props:
 
 | Route | Component | Auth |
 |-------|-----------|------|
-| `/` | PortfolioHome (tabs: Blog/Videos/Ressources/A propos) | — |
-| `/blog` | Blog (paginated articles, ArticleCard grid) | — |
-| `/blog/videos` | BlogVideos (TutorialWorkspace + TutorialCard) | — |
-| `/blog/:slug` | BlogArticle | — |
-| `/login` | Login | — |
-| `/admin` | AdminLayout (nested: dashboard, articles, videos, community, settings) | AuthGuard + AdminGuard |
-| `/admin/content` | AdminContent | AuthGuard + AdminGuard |
+| `/` | RootRedirect → `/:username` if logged in, else PortfolioHome | — |
+| `/login` | Login (redirects to `/` if already logged in) | — |
+| `/inbox` | Inbox | AuthGuard |
+| `/banned` | Banned | — |
+| `/admin` | AdminLayout (nested routes below) | AuthGuard + AdminGuard |
+| `/admin/articles` | ArticleManager | AuthGuard + AdminGuard |
+| `/admin/videos` | AdminVideos | AuthGuard + AdminGuard |
+| `/admin/messages` | AdminMessages | AuthGuard + AdminGuard |
+| `/admin/notifications` | AdminNotifications | AuthGuard + AdminGuard |
+| `/admin/settings` | AdminSettings | AuthGuard + AdminGuard |
+| `/admin/community` | AdminCommunity | AuthGuard + AdminGuard + SuperAdminGuard |
+| `/:user` | PortfolioHome (tenant public profile) | — |
+| `/:user/blog` | Blog (paginated articles) | — |
+| `/:user/blog/:slug` | BlogArticle | — |
+| `/:user/videos` | BlogVideos | — |
 
 ## Architecture
 
 - **API**: Cloudflare Pages Functions in `functions/api/` (`/api/articles`, `/api/newsletter`). `PagesFunction<Env>` interface.
-- **DB**: Supabase. Migrations in `supabase/migrations/`. Tables: `admin_articles`, `blog_categories`, `newsletter_subscribers`, `user_roles`, `user_profiles`.
+- **DB**: Supabase. Migrations in `supabase/migrations/`. Tables: `admin_articles`, `blog_categories`, `newsletter_subscribers`, `user_roles`, `user_profiles`, `messages`, `message_reads`, `notifications`, `notification_reads`.
 - **Portfolio**: GSAP animations, zustand store (`src/store/portfolio.ts`) with `persist` middleware (localStorage cache). Profile data synced to `user_profiles` table via `useProfile` hook.
-- **Header**: Shows "Se connecter" when logged out, avatar + settings when logged in. `UserSettings` dialog edits profile (name, title, socials, stats). Admin link visible via `useRole()` JWT check.
+- **Auth**: Supabase email/password. Role hierarchy: `superadmin` > `admin` > `user`. Banned users blocked at AuthGuard level.
 - **Admin**: Auth via Supabase email/password. Role check via `user_roles` table. BlockNote v6 editor (sync `tryParseHTMLToBlocks`, no `.then()`).
 - **Images**: Static SVGs in `public/assets/`, referenced as `/assets/*.svg`. User avatars in Supabase Storage bucket `avatars`.
 - **SEO**: `SEOHead.tsx` for meta/OG/Twitter/JSON-LD. Dynamic sitemap at `/sitemap.xml`.
@@ -51,6 +59,7 @@ Renamed props:
 | Store | File | Purpose |
 |-------|------|---------|
 | `usePortfolioStore` | `src/store/portfolio.ts` | activeTab + profile data, persisted to localStorage |
+| `useInboxStore` | `src/store/inbox.ts` | inbox open state |
 
 ## Gotchas
 
@@ -60,3 +69,4 @@ Renamed props:
 - Cloudflare Functions (`functions/`, `supabase/functions/`) use `PagesFunction` type from Cloudflare Workers runtime — tsc reports `Cannot find name 'PagesFunction'` (false positive, works at runtime).
 - GSAP SVG flip animation chains across Instagram → GitHub → Discord in a loop.
 - Profile data lives in zustand (localStorage cache) + Supabase `user_profiles` table. Always write to both.
+- `useRole()` returns `{ role, isAdmin, isSuperAdmin, isBanned, isVerified }`. Admin = role 'admin' OR 'superadmin'. SuperAdmin = role 'superadmin' only.

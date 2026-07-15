@@ -12,11 +12,10 @@ import {
   Slide,
 } from '@mui/material';
 import type { TransitionProps } from '@mui/material/transitions';
-import { Shield, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioStore } from '../../store/portfolio';
 import { useProfile } from '../../hooks/useProfile';
-import { useRole } from '../../hooks/useRole';
 import { useAuth } from '../../hooks/useAuth';
 
 interface UserSettingsProps {
@@ -34,7 +33,6 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
   const profile = usePortfolioStore((s) => s.profile);
   const updateProfile = usePortfolioStore((s) => s.updateProfile);
   const { saveToSupabase } = useProfile();
-  const { isAdmin } = useRole();
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -64,11 +62,6 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
     await signOut();
     onClose();
     navigate('/');
-  };
-
-  const handleAdmin = () => {
-    onClose();
-    navigate('/admin');
   };
 
   return (
@@ -149,19 +142,6 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
           <TextField label="Abonnements" value={profile.following} disabled size="small" />
           <TextField label="J'aime" value={profile.likes} disabled size="small" />
         </Box>
-
-        {isAdmin && (
-          <Button
-            fullWidth
-            variant="outlined"
-            color="primary"
-            startIcon={<Shield size={18} />}
-            onClick={handleAdmin}
-            sx={{ mt: 1, py: 1, fontWeight: 700 }}
-          >
-            Accéder au panneau d'administration
-          </Button>
-        )}
 
         <Divider sx={{ my: 2 }} />
 

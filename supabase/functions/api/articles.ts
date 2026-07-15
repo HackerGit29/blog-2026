@@ -6,6 +6,8 @@ interface Env {
 const HEADERS: Record<string, string> = {
   'Content-Type': 'application/json',
   'Cache-Control': 'public, max-age=60',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
 };
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -41,14 +43,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       apiUrl += `&or=(media_type.eq.image,media_type.is.null)`;
     }
 
-    const headers: Record<string, string> = {
+    const reqHeaders: Record<string, string> = {
       'apikey': env.SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
       'Range': `${from}-${to}`,
       'Prefer': 'count=exact',
     };
 
-    const res = await fetch(apiUrl, { headers });
+    const res = await fetch(apiUrl, { headers: reqHeaders });
 
     if (!res.ok) {
       return new Response(JSON.stringify({ error: 'Supabase error', details: await res.text() }), { status: 502, headers: HEADERS });
@@ -58,6 +60,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const total = cr ? parseInt(cr.split('/')[1] || '0') : 0;
     const data = await res.json();
 
+    // Fetch category counts for filter badges
     const catUrl = `${env.SUPABASE_URL}/rest/v1/admin_articles?select=category_id&is_published=eq.true`;
     const catRes = await fetch(catUrl, {
       headers: { 'apikey': env.SUPABASE_ANON_KEY, 'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}` },

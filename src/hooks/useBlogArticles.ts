@@ -29,21 +29,36 @@ async function fetchViaApi(options?: UseBlogArticlesOptions): Promise<ArticlesRe
 
   const res = await fetch(`/api/articles?${params.toString()}`);
   if (!res.ok) throw new Error('API error');
-  return res.json();
+  const result: ArticlesResponse = await res.json();
+
+  if (result.data) {
+    result.data = result.data.map((article: any) => ({
+      ...article,
+      blog_categories: article.blog_categories || article.category,
+    }));
+  }
+  return result;
 }
 
 async function fetchDirect(options?: UseBlogArticlesOptions): Promise<ArticlesResponse> {
   let query = supabase
     .from('admin_articles')
-    .select('*', { count: 'exact' })
+    .select('*, blog_categories(*)', { count: 'exact' })
     .eq('is_published', true)
     .order('published_at', { ascending: false });
 
   if (options?.search) {
     query = query.or(`title.ilike.%${options.search}%,summary.ilike.%${options.search}%`);
   }
-  if (options?.categoryId) {
+  if (options?.categoryId && options.categoryId !== 'all') {
     query = query.eq('category_id', options.categoryId);
+  }
+  if (options?.mediaFilter && options.mediaFilter !== 'all') {
+    if (options.mediaFilter === 'video') {
+      query = query.eq('media_type', 'video');
+    } else if (options.mediaFilter === 'image') {
+      query = query.or('media_type.eq.image,media_type.is.null');
+    }
   }
 
   const page = options?.page || 1;

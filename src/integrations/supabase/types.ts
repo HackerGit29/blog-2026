@@ -218,6 +218,7 @@ export type Database = {
           followers: string | null
           following: string | null
           id: string
+          is_verified: boolean | null
           likes: string | null
           location: string | null
           name: string | null
@@ -225,12 +226,14 @@ export type Database = {
           title: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
           followers?: string | null
           following?: string | null
           id?: string
+          is_verified?: boolean | null
           likes?: string | null
           location?: string | null
           name?: string | null
@@ -238,12 +241,14 @@ export type Database = {
           title?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
           followers?: string | null
           following?: string | null
           id?: string
+          is_verified?: boolean | null
           likes?: string | null
           location?: string | null
           name?: string | null
@@ -251,6 +256,7 @@ export type Database = {
           title?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
