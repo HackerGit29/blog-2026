@@ -24,7 +24,7 @@ export function Header() {
   const profile = usePortfolioStore((s) => s.profile);
   const notifUnread = useInboxStore((s) => s.notifUnread);
   const msgUnread = useInboxStore((s) => s.msgUnread);
-  const [settingsAnchor, setSettingsAnchor] = useState<HTMLElement | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
 
@@ -108,7 +108,7 @@ export function Header() {
               <Avatar
                 src={profile.avatarUrl}
                 alt={profile.name}
-                onClick={(e) => setSettingsAnchor(e.currentTarget)}
+                onClick={() => setSettingsOpen(true)}
                 sx={{
                   width: 40, height: 40, cursor: 'pointer',
                   border: '2px solid', borderColor: 'primary.main',
@@ -135,7 +135,7 @@ export function Header() {
         </Stack>
       </Box>
 
-      <UserSettings anchorEl={settingsAnchor} onClose={() => setSettingsAnchor(null)} />
+      <UserSettings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <NotificationCenter open={notifOpen} onClose={() => setNotifOpen(false)} />
       <MessageCenter open={msgOpen} onClose={() => setMsgOpen(false)} />
     </>
