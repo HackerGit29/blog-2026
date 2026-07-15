@@ -7,6 +7,8 @@ import { BlogLayout } from '../components/blog/BlogLayout';
 import { getEmbedUrl } from '../lib/videoUtils';
 import { TutorialWorkspace } from '../components/blog/tutorials/TutorialWorkspace';
 import { getTutorialEnhancement } from '../data/tutorialEnhancements';
+import { MicrosoftBanners } from '../components/blog/MicrosoftBanners';
+import { getMicrosoftTech } from '../lib/microsoft/content';
 import { SEOHead, BlogPostingJsonLd } from '../components/SEOHead';
 
 export function BlogArticle() {
@@ -14,6 +16,7 @@ export function BlogArticle() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useBlogArticle(slug || '');
   const article = data as any;
+  const tech = getMicrosoftTech(article?.slug);
 
   if (isLoading) {
     return (
@@ -153,6 +156,8 @@ export function BlogArticle() {
                 '& p': { mb: 3, lineHeight: 1.8 }
               }}
             />
+
+            {tech && <MicrosoftBanners />}
 
             <Divider sx={{ my: 6 }} />
 
