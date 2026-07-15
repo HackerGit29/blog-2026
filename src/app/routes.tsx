@@ -23,6 +23,7 @@ import { AdminNotifications } from '../components/admin/AdminNotifications';
 
 // Inbox
 import { Inbox } from '../pages/Inbox';
+import { Banned } from '../pages/Banned';
 
 // Guards
 import { AuthGuard } from '../components/auth/AuthGuard';
@@ -65,6 +66,9 @@ export function AppRoutes() {
           </AuthGuard>
         }
       />
+
+      {/* ── Banned ──────────────────────────────────────────────── */}
+      <Route path="/banned" element={<Banned />} />
 
       {/* ── Route bloquée /goal ─────────────────────────────────── */}
       <Route path="/goal" element={<Navigate to="/blog" replace />} />

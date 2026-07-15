@@ -1,10 +1,10 @@
 import React from 'react';
 import {
   Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText,
-  Typography, Divider, Chip, useTheme, Tooltip,
+  Typography, Divider, Chip, useTheme,
 } from '@mui/material';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { FileText, BarChart3, Settings, LogOut, LayoutDashboard, Video, Users, ShieldCheck, Lock, MessageSquare, Bell } from 'lucide-react';
+import { FileText, BarChart3, Settings, LogOut, LayoutDashboard, Video, Users, ShieldCheck, MessageSquare, Bell } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useRole } from '../../hooks/useRole';
 import { usePortfolioStore } from '../../store/portfolio';
@@ -110,7 +110,7 @@ export function AdminLayout() {
           ))}
 
           {/* ── Section superadmin ─────────────────────────────── */}
-          {(isSuperAdmin || true) && (
+          {isSuperAdmin && (
             <>
               <Divider sx={{ mx: 1, my: 1.5 }} />
               <Typography
@@ -119,53 +119,29 @@ export function AdminLayout() {
               >
                 SuperAdmin
               </Typography>
-              {SUPERADMIN_NAV_ITEMS.map((item) =>
-                isSuperAdmin ? (
-                  <ListItemButton
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    selected={isActive(item.path)}
-                    sx={{
-                      borderRadius: '12px',
-                      mb: 0.5,
-                      mt: 0.5,
-                      '&.Mui-selected': {
-                        bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40, color: isActive(item.path) ? 'primary.main' : 'text.secondary' }}>
-                      <item.icon size={20} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.label}
-                      slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: isActive(item.path) ? 700 : 500 } } }}
-                    />
-                  </ListItemButton>
-                ) : (
-                  /* Élément verrouillé pour les admins non vérifiés */
-                  <Tooltip
-                    key={item.path}
-                    title="Accès réservé au SuperAdmin (badge vérifié requis)"
-                    placement="right"
-                  >
-                    <span>
-                      <ListItemButton
-                        disabled
-                        sx={{ borderRadius: '12px', mb: 0.5, mt: 0.5, opacity: 0.4 }}
-                      >
-                        <ListItemIcon sx={{ minWidth: 40 }}>
-                          <Lock size={18} />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={item.label}
-                          slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: 500 } } }}
-                        />
-                      </ListItemButton>
-                    </span>
-                  </Tooltip>
-                )
-              )}
+              {SUPERADMIN_NAV_ITEMS.map((item) => (
+                <ListItemButton
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  selected={isActive(item.path)}
+                  sx={{
+                    borderRadius: '12px',
+                    mb: 0.5,
+                    mt: 0.5,
+                    '&.Mui-selected': {
+                      bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 40, color: isActive(item.path) ? 'primary.main' : 'text.secondary' }}>
+                    <item.icon size={20} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.label}
+                    slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: isActive(item.path) ? 700 : 500 } } }}
+                  />
+                </ListItemButton>
+              ))}
             </>
           )}
         </List>
