@@ -5,9 +5,9 @@ import { Tabs, TabsList, TabsTrigger } from './AnimatedTabs';
 import { motion } from 'motion/react';
 
 const TABS = [
-  { label: 'Travaux', count: 54, value: 'travaux' },
-  { label: 'Moodboards', value: 'moodboards' },
-  { label: "J'aime", value: 'jaime' },
+  { label: 'Blog', value: 'blog' },
+  { label: 'Vidéos', value: 'videos' },
+  { label: 'Ressources', value: 'ressources' },
   { label: 'À propos', value: 'apropos' },
 ];
 
@@ -19,7 +19,7 @@ export function ProjectTabs() {
     if (index !== -1) setActiveTab(index);
   };
 
-  const currentValue = TABS[activeTab]?.value || 'travaux';
+  const currentValue = TABS[activeTab]?.value || 'blog';
 
   return (
     <Box 
@@ -38,11 +38,7 @@ export function ProjectTabs() {
                 <Typography component="span" sx={{ fontWeight: 'inherit', fontSize: 'inherit' }}>
                   {tab.label}
                 </Typography>
-                {tab.count !== undefined && (
-                  <Typography component="span" sx={{ fontSize: '0.75rem', fontWeight: 600, mt: -0.2 }}>
-                    {tab.count}
-                  </Typography>
-                )}
+
               </Box>
             </TabsTrigger>
           ))}

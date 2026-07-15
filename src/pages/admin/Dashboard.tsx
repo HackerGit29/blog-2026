@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper, Grid } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../integrations/supabase/client';
 import { FileText, Users, Eye, Search } from 'lucide-react';

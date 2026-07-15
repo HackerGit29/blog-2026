@@ -51,7 +51,7 @@ export function ArticleManager() {
     },
   });
 
-  const filtered = (articles || []).filter((a: any) => {
+  const filtered: any[] = (articles || []).filter((a: any) => {
     const ms = !search || a.title.toLowerCase().includes(search.toLowerCase());
     const fs = filterStatus === 'all' || a.status === filterStatus;
     return ms && fs;
@@ -74,7 +74,7 @@ export function ArticleManager() {
         author_id: user!.id,
       };
       if (editingId) {
-        const { error } = await supabase.from('admin_articles').update(payload).eq('id', editingId);
+        const { error } = await (supabase.from('admin_articles') as any).update(payload).eq('id', editingId);
         if (error) throw error;
       } else {
         const { error } = await supabase.from('admin_articles').insert(payload);
@@ -228,7 +228,7 @@ export function ArticleManager() {
             <TextField label="Tags (virgules)" value={form.tags} onChange={e => setForm(p => ({ ...p, tags: e.target.value }))} placeholder="react, ai, cloud" fullWidth />
             <TextField label="Meta Description (SEO)" value={form.meta_description} onChange={e => setForm(p => ({ ...p, meta_description: e.target.value }))} multiline rows={2} fullWidth />
             {(form.status === 'scheduled' || form.status === 'published') && (
-              <TextField label="Date de publication" type="datetime-local" value={form.published_at} onChange={e => setForm(p => ({ ...p, published_at: e.target.value }))} InputLabelProps={{ shrink: true }} />
+              <TextField label="Date de publication" type="datetime-local" value={form.published_at} onChange={e => setForm(p => ({ ...p, published_at: e.target.value }))} slotProps={{ inputLabel: { shrink: true } }} />
             )}
           </Box>
         </DialogContent>

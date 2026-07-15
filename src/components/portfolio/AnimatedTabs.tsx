@@ -68,7 +68,7 @@ export const TabsTrigger = ({ value, asChild = false, children, style, ...props 
         transition: 'color 0.2s',
         ...style,
       }}
-      {...props}
+      {...(props as any)}
     >
       {children}
       {isActive && (

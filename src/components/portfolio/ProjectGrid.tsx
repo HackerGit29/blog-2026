@@ -40,7 +40,7 @@ function ArticleCard({ article }: { article: any }) {
       </Box>
 
       <Stack sx={{ px: 1 }}>
-        <Typography variant="subtitle1" fontWeight={600} sx={{ color: 'text.primary', mb: 0.25, fontSize: '1.15rem' }}>
+        <Typography variant="subtitle1" sx={{ color: 'text.primary', mb: 0.25, fontSize: '1.15rem', fontWeight: 600 }}>
           {article.title}
         </Typography>
         {article.summary && (

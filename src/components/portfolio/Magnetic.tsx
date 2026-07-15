@@ -40,5 +40,5 @@ export function Magnetic({ children, magneticPull = 0.3 }: MagneticProps) {
     }
   }, { scope: magnetic });
 
-  return React.cloneElement(children, { ref: magnetic });
+  return React.cloneElement(children, { ref: magnetic } as Record<string, unknown>);
 }

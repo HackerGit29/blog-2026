@@ -80,15 +80,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
                   backgroundColor: mode === 'light' ? '#333333' : '#E6CB11',
                 }
               },
-              containedPrimary: {
-                boxShadow: 'none',
-                backgroundColor: mode === 'light' ? '#234940' : '#FFE213',
-                color: mode === 'light' ? '#FFFFFF' : '#1A1A1A',
-                '&:hover': {
-                  boxShadow: 'none',
-                  backgroundColor: mode === 'light' ? '#1C3E36' : '#E6CB11',
-                }
-              },
               outlined: {
                 borderColor: mode === 'light' ? '#1A1A1A' : '#FFE213',
                 color: mode === 'light' ? '#1A1A1A' : '#FFE213',
@@ -97,14 +88,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
                   backgroundColor: mode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 226, 19, 0.08)',
                 }
               },
-              outlinedPrimary: {
-                borderColor: mode === 'light' ? '#234940' : '#FFE213',
-                color: mode === 'light' ? '#234940' : '#FFE213',
-                '&:hover': {
-                  borderColor: mode === 'light' ? '#1C3E36' : '#E6CB11',
-                  backgroundColor: mode === 'light' ? 'rgba(35, 73, 64, 0.08)' : 'rgba(255, 226, 19, 0.08)',
-                }
-              }
             },
           },
           MuiCard: {

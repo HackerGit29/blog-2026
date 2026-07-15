@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React, { useState, useCallback } from 'react';
 import { Box, Typography, Button, TextField, Paper, CircularProgress, Alert, useTheme } from '@mui/material';
 import { useForm } from 'react-hook-form';

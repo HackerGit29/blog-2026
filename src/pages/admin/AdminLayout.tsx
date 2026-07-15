@@ -77,10 +77,7 @@ export function AdminLayout() {
                 </ListItemIcon>
                 <ListItemText
                   primary={item.label}
-                  primaryTypographyProps={{
-                    fontSize: '0.9rem',
-                    fontWeight: isActive ? 700 : 500,
-                  }}
+                  slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: isActive ? 700 : 500 } } }}
                 />
               </ListItemButton>
             );
@@ -93,7 +90,7 @@ export function AdminLayout() {
           <ListItemIcon sx={{ minWidth: 40 }}>
             <LogOut size={20} />
           </ListItemIcon>
-          <ListItemText primary="Déconnexion" primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: 500 }} />
+          <ListItemText primary="Déconnexion" slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: 500 } } }} />
         </ListItemButton>
       </Drawer>
 

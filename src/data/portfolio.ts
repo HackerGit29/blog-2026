@@ -7,9 +7,9 @@ export const PROFILE_DATA = {
   likes: '548',
   avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
   socials: {
-    discord: 'https://discord.gg/invite',
-    github: 'https://github.com/irenebrooks',
-    instagram: 'https://instagram.com/irenebrooks'
+    discord: 'https://discord.com/users/1373337350028923081',
+    github: 'https://github.com/HackerGit29',
+    instagram: 'https://instagram.com/mopaossi'
   }
 };
 

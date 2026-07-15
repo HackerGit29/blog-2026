@@ -22,9 +22,10 @@ export function BlockEditor({ content, onChange, placeholder }: BlockEditorProps
 
   useEffect(() => {
     if (content && editor) {
-      editor.tryParseHTMLToBlocks(content).then((blocks) => {
+      try {
+        const blocks = editor.tryParseHTMLToBlocks(content);
         editor.replaceBlocks(editor.document, blocks);
-      }).catch(() => {});
+      } catch {}
     }
   }, []);
 

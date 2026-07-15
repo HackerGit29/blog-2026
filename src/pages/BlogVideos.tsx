@@ -56,9 +56,8 @@ export function BlogVideos() {
     }
   ];
 
-  const articles = rawArticles && rawArticles.length > 0 
-    ? rawArticles 
-    : fallbackArticles;
+  const articleData = rawArticles?.data ?? [];
+  const articles = articleData.length > 0 ? articleData : fallbackArticles;
 
   // Set default active tutorial once articles load
   useEffect(() => {

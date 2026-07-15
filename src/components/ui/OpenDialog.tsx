@@ -36,8 +36,8 @@ export function OpenDialog({
       onClose={onClose}
       maxWidth={maxWidth}
       fullWidth
-      PaperProps={{
-        sx: { borderRadius: '16px', p: 0 },
+      slotProps={{
+        paper: { sx: { borderRadius: '16px', p: 0 } },
       }}
       {...dialogProps}
     >

@@ -34,8 +34,8 @@ export function AlertDialog({
     <Dialog
       open={open}
       onClose={onCancel}
-      PaperProps={{
-        sx: { borderRadius: '16px', maxWidth: 400, p: 1 },
+      slotProps={{
+        paper: { sx: { borderRadius: '16px', maxWidth: 400, p: 1 } },
       }}
       {...dialogProps}
     >

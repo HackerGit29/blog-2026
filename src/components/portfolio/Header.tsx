@@ -55,10 +55,10 @@ export function Header() {
         mb: 3
       }}
     >
-      <Stack ref={linksRef} direction="row" gap={5} sx={{ alignItems: 'center', justifyContent: 'center', display: { xs: 'none', md: 'flex' }, flex: 2 }}>
+      <Stack ref={linksRef} direction="row" sx={{ gap: 5, alignItems: 'center', justifyContent: 'center', display: { xs: 'none', md: 'flex' }, flex: 2 }}>
       </Stack>
 
-      <Stack ref={actionsRef} direction="row" gap={2} sx={{ alignItems: 'center', justifyContent: 'flex-end', flex: 1 }}>
+      <Stack ref={actionsRef} direction="row" sx={{ gap: 2, alignItems: 'center', justifyContent: 'flex-end', flex: 1 }}>
         <Magnetic magneticPull={0.3}>
           <IconButton size="small" sx={{ color: 'text.primary', display: { xs: 'none', sm: 'inline-flex' } }}>
             <Mail size={22} />
