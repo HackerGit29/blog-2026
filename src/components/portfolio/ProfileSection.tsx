@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Box, Stack, Typography, Button, Avatar } from '@mui/material';
 import { Zap } from 'lucide-react';
-import { PROFILE_DATA } from '../../data/portfolio';
+import { usePortfolioStore } from '../../store/portfolio';
 import { motion } from 'motion/react';
 import { Magnetic } from './Magnetic';
 import gsap from 'gsap';
@@ -23,6 +23,7 @@ const StatBox = ({ value, label }: { value: string; label: string }) => (
 );
 
 export function ProfileSection() {
+  const profile = usePortfolioStore((s) => s.profile);
   const containerRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -102,8 +103,8 @@ export function ProfileSection() {
     >
       <Box ref={avatarRef} sx={{ position: 'relative', flexShrink: 0 }}>
          <Avatar 
-           src={PROFILE_DATA.avatarUrl} 
-           alt={PROFILE_DATA.name}
+           src={profile.avatarUrl} 
+           alt={profile.name}
            sx={{ 
              width: { xs: 200, md: 280 }, 
              height: { xs: 200, md: 280 }, 
@@ -116,7 +117,7 @@ export function ProfileSection() {
       <Box ref={textRef} sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
          <Stack direction="row" sx={{ gap: 2, mb: 1, alignItems: 'center', justifyContent: { xs: 'center', md: 'flex-start' } }}>
             <Typography variant="h2" sx={{ letterSpacing: '-1.5px', color: 'text.primary', fontWeight: 700 }}>
-              {PROFILE_DATA.name}
+              {profile.name}
             </Typography>
             <Box
               component="img"
@@ -127,7 +128,7 @@ export function ProfileSection() {
          </Stack>
          
          <Typography variant="body1" color="text.primary" sx={{ fontSize: '1.25rem', maxWidth: 400, mx: { xs: 'auto', md: 0 }, lineHeight: 1.5, mb: 4, opacity: 0.9 }}>
-           {PROFILE_DATA.title}<br/>{PROFILE_DATA.location}
+           {profile.title}<br/>{profile.location}
          </Typography>
 
          <Stack direction="row" sx={{ gap: 2, justifyContent: { xs: 'center', md: 'flex-start' } }}>
@@ -148,7 +149,7 @@ export function ProfileSection() {
          <Stack direction="row" sx={{ gap: 3, alignItems: 'center' }}>
            <Box
              component="a"
-             href={PROFILE_DATA.socials.discord}
+             href={profile.socials.discord}
              target="_blank"
              rel="noopener noreferrer"
              className="badge-svg discord-badge"
@@ -158,7 +159,7 @@ export function ProfileSection() {
            </Box>
            <Box
              component="a"
-             href={PROFILE_DATA.socials.github}
+             href={profile.socials.github}
              target="_blank"
              rel="noopener noreferrer"
              className="badge-svg github-badge"
@@ -168,7 +169,7 @@ export function ProfileSection() {
            </Box>
            <Box
              component="a"
-             href={PROFILE_DATA.socials.instagram}
+             href={profile.socials.instagram}
              target="_blank"
              rel="noopener noreferrer"
              className="badge-svg instagram-badge"
@@ -179,9 +180,9 @@ export function ProfileSection() {
          </Stack>
 
          <Stack direction="row" sx={{ gap: { xs: 3, sm: 6 }, mt: 2 }}>
-           <StatBox value={PROFILE_DATA.followers} label="Abonnés" />
-           <StatBox value={PROFILE_DATA.following} label="Abonnements" />
-           <StatBox value={PROFILE_DATA.likes} label="J'aime" />
+           <StatBox value={profile.followers} label="Abonnés" />
+           <StatBox value={profile.following} label="Abonnements" />
+           <StatBox value={profile.likes} label="J'aime" />
          </Stack>
       </Box>
     </Box>
