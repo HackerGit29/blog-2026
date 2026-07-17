@@ -1,23 +1,17 @@
 import React from 'react';
-import { Typography, Box, Chip, IconButton } from '@mui/material';
+import { Typography, Box, Chip, IconButton, Avatar } from '@mui/material';
 import BookmarkBorder from '@mui/icons-material/BookmarkBorder';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { DISPLAY_DATE, getAuthor } from './ArticleCard';
 
 export function RecentStoryCard({ article }: { article: any }) {
   const navigate = useNavigate();
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
+  const author = getAuthor(article);
 
   if (!article) return null;
-
-  const formattedDate = article.published_at 
-    ? new Date(article.published_at).toLocaleDateString('fr-FR', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
-    : '';
 
   return (
     <motion.div
@@ -49,7 +43,10 @@ export function RecentStoryCard({ article }: { article: any }) {
       }} />
       
       <Box sx={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
-        <Box sx={{ mb: 1.5 }}>
+        <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Avatar src={author.avatar || undefined} alt={author.name} sx={{ width: 22, height: 22, fontSize: 11, border: '1.5px solid #fff' }}>
+            {author.name.charAt(0)}
+          </Avatar>
            <Typography variant="caption" sx={{ 
              bgcolor: 'background.paper', 
              color: 'text.primary',
@@ -59,7 +56,7 @@ export function RecentStoryCard({ article }: { article: any }) {
              fontWeight: 600,
              display: 'inline-block'
            }}>
-             Benji / {formattedDate} / 2 likes
+             {author.name} / {DISPLAY_DATE} / 2 likes
            </Typography>
         </Box>
         <Typography variant="h5" sx={{ 

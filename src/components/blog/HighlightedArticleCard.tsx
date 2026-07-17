@@ -1,21 +1,15 @@
 import React from 'react';
-import { Card, Typography, Box, Chip, Button } from '@mui/material';
+import { Card, Typography, Box, Chip, Button, Avatar } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
+import { DISPLAY_DATE, getAuthor } from './ArticleCard';
 
 export function HighlightedArticleCard({ article }: { article: any }) {
   const navigate = useNavigate();
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
+  const author = getAuthor(article);
 
   if (!article) return null;
-
-  const formattedDate = article.published_at 
-    ? new Date(article.published_at).toLocaleDateString('fr-FR', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
-    : '';
 
   return (
     <Card sx={{ 
@@ -35,9 +29,14 @@ export function HighlightedArticleCard({ article }: { article: any }) {
            <Chip label="Vidéo" variant="outlined" size="small" />
         )}
       </Box>
-      <Typography align="center" variant="caption" sx={{ display: 'block', mb: 2, color: 'text.secondary', fontWeight: 600 }}>
-        Benji • {formattedDate}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+        <Avatar src={author.avatar || undefined} alt={author.name} sx={{ width: 24, height: 24, fontSize: 12, bgcolor: 'primary.main' }}>
+          {author.name.charAt(0)}
+        </Avatar>
+        <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+          {author.name} • {DISPLAY_DATE}
+        </Typography>
+      </Box>
       <Typography align="center" variant="h5" sx={{ fontWeight: 800, mb: 2, lineHeight: 1.3 }}>
         {article.title}
       </Typography>

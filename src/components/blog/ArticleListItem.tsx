@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, useInView } from 'motion/react';
+import { DISPLAY_DATE, getAuthor } from './ArticleCard';
 
 export interface ArticleListItemProps {
   article: any;
@@ -14,16 +15,9 @@ export function ArticleListItem({ article, index = 0 }: ArticleListItemProps) {
   const base = `/${user ?? 'admin'}`;
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { amount: 0.2, once: false });
+  const author = getAuthor(article);
 
   if (!article) return null;
-
-  const formattedDate = article.published_at 
-    ? new Date(article.published_at).toLocaleDateString('fr-FR', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
-    : '';
 
   return (
     <motion.div
@@ -55,7 +49,7 @@ export function ArticleListItem({ article, index = 0 }: ArticleListItemProps) {
           textAlign: 'center'
         }}>
           <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
-            Benji | {formattedDate} | {article.reading_time || 5} min
+            {author.name} | {DISPLAY_DATE} | {article.reading_time || 5} min
           </Typography>
         </Box>
         <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, lineHeight: 1.3 }}>

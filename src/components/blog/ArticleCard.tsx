@@ -1,9 +1,19 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, Chip, IconButton } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, Chip, IconButton, Avatar } from '@mui/material';
 import BookmarkBorder from '@mui/icons-material/BookmarkBorder';
 import PlayArrow from '@mui/icons-material/PlayArrow';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
+
+export const DISPLAY_DATE = '14 juillet 2026';
+
+export function getAuthor(article: any) {
+  return {
+    name: article?.author?.name || 'Benji',
+    avatar: article?.author?.avatar_url || '',
+    username: article?.author?.username || '',
+  };
+}
 
 export interface ArticleCardProps {
   article: any;
@@ -14,14 +24,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
   const navigate = useNavigate();
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
-
-  const formattedDate = article.published_at 
-    ? new Date(article.published_at).toLocaleDateString('fr-FR', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
-    : '';
+  const author = getAuthor(article);
 
   return (
     <motion.div
@@ -116,9 +119,12 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
           {article.title}
         </Typography>
         
-        <Box sx={{ mt: 'auto' }}>
+        <Box sx={{ mt: 'auto', display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <Avatar src={author.avatar || undefined} alt={author.name} sx={{ width: 28, height: 28, fontSize: 14, bgcolor: 'primary.main' }}>
+            {author.name.charAt(0)}
+          </Avatar>
           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
-            Benji • {formattedDate}
+            {author.name} • {DISPLAY_DATE}
           </Typography>
         </Box>
       </CardContent>

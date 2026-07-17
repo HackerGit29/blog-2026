@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, Chip, Button } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, Chip, Button, Avatar } from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CodeIcon from '@mui/icons-material/Code';
@@ -7,6 +7,7 @@ import SubtitlesIcon from '@mui/icons-material/Subtitles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { getTutorialEnhancement } from '../../../data/tutorialEnhancements';
+import { DISPLAY_DATE, getAuthor } from '../ArticleCard';
 
 export interface TutorialCardProps {
   article: any;
@@ -18,14 +19,7 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
   const enhancement = getTutorialEnhancement(article.slug);
-
-  const formattedDate = article.published_at 
-    ? new Date(article.published_at).toLocaleDateString('fr-FR', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      })
-    : '';
+  const author = getAuthor(article);
 
   return (
     <motion.div
@@ -187,9 +181,14 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
 
         {/* Action Button & Date */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 1 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-            {formattedDate}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <Avatar src={author.avatar || undefined} alt={author.name} sx={{ width: 20, height: 20, fontSize: 10, bgcolor: 'primary.main' }}>
+              {author.name.charAt(0)}
+            </Avatar>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+              {author.name} · {DISPLAY_DATE}
+            </Typography>
+          </Box>
           
           <Button
             variant="contained"

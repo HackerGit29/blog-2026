@@ -122,12 +122,13 @@ export function BlogArticle() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                 <Box 
                   component="img" 
-                  src={authorProfile?.avatarUrl || 'https://ui-avatars.com/api/?name=Benji&background=194943&color=fff'} 
+                  src={authorProfile?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorProfile?.name || 'B')}&background=194943&color=fff`} 
+                  alt={authorProfile?.name}
                   sx={{ width: 48, height: 48, borderRadius: '50%' }}
                 />
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Benji</Typography>
-                  <Typography variant="caption" color="text.secondary">{formattedDate}</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{authorProfile?.name || 'Benji'}</Typography>
+                  <Typography variant="caption" color="text.secondary">14 juillet 2026</Typography>
                 </Box>
               </Box>
             </Box>

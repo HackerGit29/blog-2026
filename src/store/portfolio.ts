@@ -23,7 +23,7 @@ export interface ProfileData {
 export const DEFAULT_TENANT = 'mopaossi';
 
 const defaultProfile: ProfileData = {
-  name: 'Mopaossi',
+  name: 'Benji',
   title: 'Software Developer & Microsoft Community Contributor',
   location: 'Based on Earth, connected to the cloud.',
   avatarUrl: '',

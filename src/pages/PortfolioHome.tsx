@@ -39,7 +39,7 @@ export function PortfolioHome() {
   }, [publicProfile]);
 
   const profileOverride = publicProfile ?? undefined;
-  const profileName = publicProfile?.name || 'Benji AKA Dev';
+  const profileName = publicProfile?.name || 'Benji';
 
   return (
     <>
