@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import React, { useState, useCallback } from 'react';
 import { Box, Typography, Button, TextField, Paper, CircularProgress, Alert, useTheme } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -99,10 +100,10 @@ export function BlogNewsletter() {
       <GridWrapper>
         <Box sx={{ flex: 1, minWidth: { md: 350 } }}>
           <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, lineHeight: 1.2 }}>
-            Rejoignez notre communauté
+            Restez informé
           </Typography>
           <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500, mt: 1.5 }}>
-            Restez à la pointe de l'IA, de Microsoft Learn, Power Platform, du Cloud, de DevOps et du développement web.
+            Abonnez-vous à la newsletter pour ne rien manquer&nbsp;: événements tech, actus et exclusivités.
           </Typography>
         </Box>
 
@@ -113,15 +114,7 @@ export function BlogNewsletter() {
           flex: 1.2,
           justifyContent: 'center'
         }}>
-          <Box component="ul" sx={{ m: 0, pl: 2, '& li': { mb: 1.5, fontWeight: 600, fontSize: '0.95rem', color: 'text.primary' } }}>
-            <li>Accès exclusif aux articles</li>
-            <li>Tutoriels et projets GitHub</li>
-          </Box>
-          <Box component="ul" sx={{ m: 0, pl: 2, '& li': { mb: 1.5, fontWeight: 600, fontSize: '0.95rem', color: 'text.primary' } }}>
-            <li>Plans Microsoft Learn guidés</li>
-            <li>Newsletter tech hebdomadaire</li>
-          </Box>
-        </Box>
+                  </Box>
 
         <Box 
           component="form" 
@@ -138,7 +131,7 @@ export function BlogNewsletter() {
         >
           <Box sx={{ position: 'relative', width: '100%' }}>
             <TextField
-              placeholder="votre@email.com"
+              placeholder="email@domain.com"
               fullWidth
               disabled={isPending}
               {...register('email')}
@@ -203,6 +196,13 @@ export function BlogNewsletter() {
               {errorMessage}
             </Alert>
           )}
+
+          <Typography variant="caption" sx={{ color: 'text.secondary', textAlign: 'center', mt: 1 }}>
+            En vous inscrivant, vous acceptez notre{' '}
+            <Link to="/privacy" style={{ color: 'inherit', fontWeight: 600 }}>politique de confidentialité</Link>
+            {' '}et nos{' '}
+            <Link to="/essentials" style={{ color: 'inherit', fontWeight: 600 }}>conditions d'utilisation</Link>.
+          </Typography>
         </Box>
       </GridWrapper>
 

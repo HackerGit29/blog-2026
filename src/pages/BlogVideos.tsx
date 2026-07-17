@@ -8,7 +8,6 @@ import { BlogLayout } from '../components/blog/BlogLayout';
 import { useBlogArticles } from '../hooks/useBlogArticles';
 import { useBlogCategories } from '../hooks/useBlogCategories';
 import { TutorialCard } from '../components/blog/tutorials/TutorialCard';
-import { getTutorialEnhancement } from '../data/tutorialEnhancements';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { SEOHead } from '../components/SEOHead';
@@ -22,7 +21,6 @@ export function BlogVideos() {
   const base = `/${user ?? 'admin'}`;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedLevel, setSelectedLevel] = useState('all');
 
   // Load public articles of type 'video'
   const { data: rawArticles, isLoading, error } = useBlogArticles({ mediaFilter: 'video' });
@@ -68,11 +66,8 @@ export function BlogVideos() {
     const matchesCategory = selectedCategory === 'all' || 
                             (article.category_id === selectedCategory) || 
                             (article.blog_categories && article.blog_categories.slug === selectedCategory);
-    
-    const enhancement = getTutorialEnhancement(article.slug);
-    const matchesLevel = selectedLevel === 'all' || enhancement.level === selectedLevel;
 
-    return matchesSearch && matchesCategory && matchesLevel;
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -132,19 +127,19 @@ export function BlogVideos() {
 
         {/* Interactive Search & Advanced Filtering */}
         <Box sx={{ mb: 5, mt: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 850, mb: 3 }}>
-            Tous les modules de formation
+          <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>
+            Tutoriels vidéo
           </Typography>
 
           <Grid container spacing={3} sx={{ mb: 3 }}>
             {/* Search */}
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: { md: 'flex-end' } }}>
               <TextField
-                fullWidth
                 size="small"
                 placeholder="Rechercher par mot-clé..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                sx={{ width: '100%', maxWidth: { md: 360 } }}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -156,22 +151,6 @@ export function BlogVideos() {
                   }
                 }}
               />
-            </Grid>
-
-            {/* Level Filter */}
-            <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: { md: 'flex-end' }, flexWrap: 'wrap' }}>
-              <Typography variant="body2" sx={{ fontWeight: 700, mr: 1, color: 'text.secondary' }}>
-                Niveau :
-              </Typography>
-              {['all', 'Débutant', 'Intermédiaire', 'Avancé'].map((level) => (
-                <Chip
-                  key={level}
-                  label={level === 'all' ? 'Tous' : level}
-                  onClick={() => setSelectedLevel(level)}
-                  color={selectedLevel === level ? 'primary' : 'default'}
-                  sx={{ fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}
-                />
-              ))}
             </Grid>
           </Grid>
 
@@ -248,7 +227,7 @@ export function BlogVideos() {
                 Prêt à faire valider tes compétences ?
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 650, lineHeight: 1.6 }}>
-                Suis nos plans Microsoft Learn recommandés à côté de ces tutoriels vidéo. Connecte-toi, démarre le plan, termine les modules pratiques, et partage ta réussite avec l'ambassadeur !
+                Explore les parcours conseillés à côté de ces tutoriels vidéo. Connecte-toi, suis les modules pratiques, et fais reconnaître tes acquis auprès de la communauté étudiante&nbsp;!
               </Typography>
               <Button 
                 variant="contained" 

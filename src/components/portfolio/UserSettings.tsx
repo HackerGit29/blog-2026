@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePortfolioStore } from '../../store/portfolio';
 import { useProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../hooks/useAuth';
+import { optimizedAvatar } from '../../lib/optimizedUrl';
 
 interface UserSettingsProps {
   open: boolean;
@@ -59,6 +60,7 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
       name: data.get('name') as string,
       title: data.get('title') as string,
       location: data.get('location') as string,
+      description: data.get('description') as string,
       followers: profile.followers,
       following: profile.following,
       likes: profile.likes,
@@ -67,6 +69,10 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
         discord: data.get('discord') as string,
         github: data.get('github') as string,
         instagram: data.get('instagram') as string,
+        linkedin: data.get('linkedin') as string,
+        x: data.get('x') as string,
+        email: data.get('email') as string,
+        youtube: data.get('youtube') as string,
       },
     };
     updateProfile(updated);
@@ -121,7 +127,7 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
       <Box component="form" onSubmit={handleSave} sx={{ p: 2.5, overflowY: 'auto' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5 }}>
           <Box sx={{ position: 'relative' }}>
-            <Avatar src={avatarPreview} sx={{ width: 64, height: 64 }} />
+            <Avatar src={optimizedAvatar(avatarPreview, 128)} sx={{ width: 64, height: 64 }} />
             <IconButton
               size="small"
               onClick={() => fileRef.current?.click()}
@@ -173,17 +179,22 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
           <TextField name="discord" label="Discord" defaultValue={profile.socials.discord} size="small" />
           <TextField name="github" label="GitHub" defaultValue={profile.socials.github} size="small" />
           <TextField name="instagram" label="Instagram" defaultValue={profile.socials.instagram} size="small" />
+          <TextField name="linkedin" label="LinkedIn" defaultValue={profile.socials.linkedin} size="small" />
+          <TextField name="x" label="X / Twitter" defaultValue={profile.socials.x} size="small" />
+          <TextField name="email" label="Email" defaultValue={profile.socials.email} size="small" />
+          <TextField name="youtube" label="YouTube" defaultValue={profile.socials.youtube} size="small" />
         </Box>
 
-         <Typography variant="overline" sx={{ color: 'text.disabled', fontWeight: 700, letterSpacing: 1 }}>
-           Statistiques
+        <Typography variant="overline" sx={{ color: 'text.disabled', fontWeight: 700, letterSpacing: 1 }}>
+           À propos
          </Typography>
-         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1.5, mt: 0.5, mb: 2 }}>
-           <TextField label="Abonnés" value={profile.followers} disabled size="small" />
-           <TextField label="Abonnements" value={profile.following} disabled size="small" />
-           <TextField label="J'aime" value={profile.likes} disabled size="small" />
+         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 0.5, mb: 2 }}>
+           <TextField name="description" label="Description" defaultValue={profile.description} multiline rows={3} size="small" />
+           {profile.memberSince && (
+             <TextField label="Membre depuis" value={profile.memberSince ? new Date(profile.memberSince).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''} disabled size="small" />
+           )}
          </Box>
- 
+
          <Typography variant="overline" sx={{ color: 'text.disabled', fontWeight: 700, letterSpacing: 1 }}>
            Expérience
          </Typography>

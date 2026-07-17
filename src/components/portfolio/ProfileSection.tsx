@@ -6,6 +6,7 @@ import { usePortfolioStore, ProfileData } from '../../store/portfolio';
 import { useAuth } from '../../hooks/useAuth';
 import { motion } from 'motion/react';
 import { Magnetic } from './Magnetic';
+import { optimizedAvatar } from '../../lib/optimizedUrl';
 import { FollowButton } from './FollowButton';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -122,15 +123,16 @@ export function ProfileSection({ profileOverride }: { profileOverride?: ProfileD
     >
       <Box ref={avatarRef} sx={{ position: 'relative', flexShrink: 0 }}>
          <Avatar 
-           src={profile.avatarUrl} 
-           alt={profile.name}
-           sx={{ 
-             width: { xs: 200, md: 280 }, 
-             height: { xs: 200, md: 280 }, 
-             borderRadius: '35%',
-             boxShadow: '0 20px 40px rgba(0,0,0,0.08)'
-           }} 
-         />
+            src={optimizedAvatar(profile.avatarUrl, 560)} 
+            alt={profile.name}
+            slotProps={{ img: { loading: 'lazy' } }}
+            sx={{ 
+              width: { xs: 200, md: 280 }, 
+              height: { xs: 200, md: 280 }, 
+              borderRadius: '35%',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.08)'
+            }} 
+          />
       </Box>
 
       <Box ref={textRef} sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>

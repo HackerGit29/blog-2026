@@ -30,7 +30,7 @@ export function usePublicProfile(username: string | undefined) {
         avatarUrl: d.avatar_url || '',
         followerCount: d.follower_count || 0,
         formattedFollowers: d.formatted_followers || '0',
-        socials: d.socials || { discord: '', github: '', instagram: '' },
+        socials: d.socials || { discord: '', github: '', instagram: '', linkedin: '', x: '', email: '', youtube: '' },
         isVerified: d.is_verified || false,
         username: d.username || '',
         memberSince: d.created_at || '',
@@ -41,6 +41,6 @@ export function usePublicProfile(username: string | undefined) {
       };
     },
     enabled: !!username,
-    staleTime: 60 * 1000, // 1 minute (plus court car les followers changent)
+    staleTime: 10 * 60, // 1 min cache
   });
 }

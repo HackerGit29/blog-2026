@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useProfile } from '../../hooks/useProfile';
 import { usePortfolioStore } from '../../store/portfolio';
 import { useInboxStore } from '../../store/inbox';
+import { optimizedAvatar } from '../../lib/optimizedUrl';
 import { UserSettings } from './UserSettings';
 import { NotificationCenter } from '../inbox/NotificationCenter';
 import { MessageCenter } from '../inbox/MessageCenter';
@@ -141,16 +142,17 @@ export function Header() {
 
            {user && !loading ? (
              <Magnetic magneticPull={0.1}>
-               <Avatar
-                 src={profile.avatarUrl}
-                 alt={profile.name}
-                 onClick={() => setSettingsOpen(true)}
-                 sx={{
-                   width: 40, height: 40, cursor: 'pointer',
-                   border: '2px solid', borderColor: 'primary.main',
-                   '&:hover': { opacity: 0.8 }
-                 }}
-               />
+                <Avatar
+                  src={optimizedAvatar(profile.avatarUrl, 80)}
+                  alt={profile.name}
+                  onClick={() => setSettingsOpen(true)}
+                  slotProps={{ img: { loading: 'lazy' } }}
+                  sx={{
+                    width: 40, height: 40, cursor: 'pointer',
+                    border: '2px solid', borderColor: 'primary.main',
+                    '&:hover': { opacity: 0.8 }
+                  }}
+                />
              </Magnetic>
             ) : (
               <Magnetic magneticPull={0.3}>

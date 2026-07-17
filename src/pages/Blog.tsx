@@ -113,7 +113,7 @@ export function Blog() {
 
                 {articles.length > 4 && (
                   <Box sx={{ mb: 10 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>Tous nos articles techniques et ressources</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>Articles</Typography>
                     {articles.slice(4).map((article, index) => (
                       <ArticleListItem key={article.id} article={article} index={index} />
                     ))}

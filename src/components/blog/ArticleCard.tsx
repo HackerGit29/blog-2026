@@ -1,19 +1,10 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, Chip, IconButton, Avatar } from '@mui/material';
-import BookmarkBorder from '@mui/icons-material/BookmarkBorder';
+import { Card, CardContent, CardMedia, Typography, Box, Chip, Button } from '@mui/material';
 import PlayArrow from '@mui/icons-material/PlayArrow';
+import ChevronRight from '@mui/icons-material/ChevronRight';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-
-export const DISPLAY_DATE = '14 juillet 2026';
-
-export function getAuthor(article: any) {
-  return {
-    name: article?.author?.name || 'Benji',
-    avatar: article?.author?.avatar_url || '',
-    username: article?.author?.username || '',
-  };
-}
+import { ArticleAuthorFooter } from './ArticleAuthorFooter';
 
 export interface ArticleCardProps {
   article: any;
@@ -24,7 +15,6 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
   const navigate = useNavigate();
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
-  const author = getAuthor(article);
 
   return (
     <motion.div
@@ -54,16 +44,6 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
         
         {/* Top Badges */}
         <Box sx={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 1 }}>
-          {article.blog_categories && (
-            <Chip 
-              label={article.blog_categories.name} 
-              size="small" 
-              variant="outlined"
-              sx={{ 
-                fontWeight: 600
-              }} 
-            />
-          )}
           {article.media_type === 'video' && (
             <Chip 
               label="Vidéo" 
@@ -74,28 +54,6 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
           )}
         </Box>
         
-        {/* Bookmark Icon */}
-        <IconButton 
-          sx={{ 
-            position: 'absolute', 
-            top: 12, 
-            right: 12, 
-            bgcolor: 'background.paper', 
-            border: '1px solid', 
-            borderColor: 'divider', 
-            '&:hover': { bgcolor: 'action.hover' }, 
-            width: 32, 
-            height: 32 
-          }}
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            // handle bookmark
-          }}
-        >
-          <BookmarkBorder sx={{ color: 'text.primary', fontSize: 18 }} />
-        </IconButton>
-
         {/* Play Icon Overlay if video */}
         {article.media_type === 'video' && (
           <Box sx={{ 
@@ -119,13 +77,18 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
           {article.title}
         </Typography>
         
-        <Box sx={{ mt: 'auto', display: 'flex', alignItems: 'center', gap: 1.25 }}>
-          <Avatar src={author.avatar || undefined} alt={author.name} sx={{ width: 28, height: 28, fontSize: 14, bgcolor: 'primary.main' }}>
-            {author.name.charAt(0)}
-          </Avatar>
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
-            {author.name} • {DISPLAY_DATE}
-          </Typography>
+        <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <ArticleAuthorFooter article={article} />
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            endIcon={<ChevronRight sx={{ fontSize: 16 }} />}
+            onClick={(e) => { e.stopPropagation(); navigate(`${base}/blog/${article.slug}`); }}
+            sx={{ borderRadius: '24px', textTransform: 'none', fontWeight: 700, fontSize: '0.8rem', px: 2 }}
+          >
+            Lire
+          </Button>
         </Box>
       </CardContent>
     </Card>

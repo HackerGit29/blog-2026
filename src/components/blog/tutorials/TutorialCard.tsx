@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardMedia, Typography, Box, Chip, Button, Avatar } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Box, Chip, Button } from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CodeIcon from '@mui/icons-material/Code';
@@ -7,7 +7,7 @@ import SubtitlesIcon from '@mui/icons-material/Subtitles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { getTutorialEnhancement } from '../../../data/tutorialEnhancements';
-import { DISPLAY_DATE, getAuthor } from '../ArticleCard';
+import { ArticleAuthorFooter } from '../ArticleAuthorFooter';
 
 export interface TutorialCardProps {
   article: any;
@@ -19,7 +19,6 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
   const enhancement = getTutorialEnhancement(article.slug);
-  const author = getAuthor(article);
 
   return (
     <motion.div
@@ -59,34 +58,6 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
           sx={{ borderBottom: '1px solid', borderColor: 'divider' }}
         />
         
-        {/* Category Badge & Level Overlay */}
-        <Box sx={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 1 }}>
-          {article.blog_categories && (
-            <Chip 
-              label={article.blog_categories.name} 
-              size="small" 
-              sx={{ 
-                bgcolor: 'background.paper', 
-                border: '1px solid',
-                borderColor: 'divider',
-                fontWeight: 700,
-                fontSize: '0.75rem',
-                color: 'text.primary'
-              }} 
-            />
-          )}
-          <Chip 
-            label={enhancement.level} 
-            size="small" 
-            color={enhancement.level === 'Débutant' ? 'success' : enhancement.level === 'Intermédiaire' ? 'primary' : 'warning'}
-            sx={{ 
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              px: 0.5
-            }} 
-          />
-        </Box>
-
         {/* Video Duration Badge */}
         <Box 
           sx={{ 
@@ -179,17 +150,9 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
           )}
         </Box>
 
-        {/* Action Button & Date */}
+        {/* Author & Action */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <Avatar src={author.avatar || undefined} alt={author.name} sx={{ width: 20, height: 20, fontSize: 10, bgcolor: 'primary.main' }}>
-              {author.name.charAt(0)}
-            </Avatar>
-            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-              {author.name} · {DISPLAY_DATE}
-            </Typography>
-          </Box>
-          
+          <ArticleAuthorFooter article={article} size="small" />
           <Button
             variant="contained"
             color="primary"

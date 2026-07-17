@@ -10,14 +10,13 @@ import { MicrosoftBanners } from '../components/blog/MicrosoftBanners';
 import { getMicrosoftTech } from '../lib/microsoft/content';
 import { SEOHead, BlogPostingJsonLd } from '../components/SEOHead';
 import { createSafeMarkup } from '../lib/sanitize';
-import { usePublicProfile } from '../hooks/usePublicProfile';
+import { optimizedAvatar } from '../lib/optimizedUrl';
 
 export function BlogArticle() {
   const { slug, user } = useParams<{ slug: string; user: string }>();
   const navigate = useNavigate();
   const { data, isLoading, error } = useBlogArticle(slug || '');
   const article = data as any;
-  const { data: authorProfile } = usePublicProfile(user);
   const tech = getMicrosoftTech(article?.slug);
   const base = `/${user ?? 'admin'}`;
 
@@ -52,6 +51,7 @@ export function BlogArticle() {
   const enhancement = isVideoTutorial ? getTutorialEnhancement(article.slug) : null;
 
   const articleUrl = `https://benji-aka-dev.site${base}/blog/${article.slug}`;
+  const articleAuthor = article?.author;
 
   return (
     <>
@@ -63,6 +63,7 @@ export function BlogArticle() {
         type="article"
         publishedAt={article.published_at}
         tags={article.tags || []}
+        author={articleAuthor?.name || undefined}
       />
       <BlogPostingJsonLd
         title={article.title}
@@ -95,21 +96,6 @@ export function BlogArticle() {
           /* Elegant Written Editorial Article View */
           <Box>
             <Box sx={{ mb: 6 }}>
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                {article.blog_categories && (
-                  <Chip 
-                    label={article.blog_categories.name} 
-                    sx={{ 
-                      bgcolor: article.blog_categories.color || 'primary.main', 
-                      color: '#fff',
-                      fontWeight: 600
-                    }} 
-                  />
-                )}
-                {article.reading_time && (
-                  <Chip label={`${article.reading_time} min de lecture`} variant="outlined" />
-                )}
-              </Box>
 
               <Typography variant="h2" component="h1" sx={{ fontWeight: 800, mb: 3, lineHeight: 1.2 }}>
                 {article.title}
@@ -122,13 +108,16 @@ export function BlogArticle() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                 <Box 
                   component="img" 
-                  src={authorProfile?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorProfile?.name || 'B')}&background=194943&color=fff`} 
-                  alt={authorProfile?.name}
+                  src={optimizedAvatar(articleAuthor?.avatar_url || '', 96) || `https://ui-avatars.com/api/?name=${encodeURIComponent(articleAuthor?.name || '')}&background=194943&color=fff`} 
+                  alt={articleAuthor?.name}
+                  loading="lazy"
                   sx={{ width: 48, height: 48, borderRadius: '50%' }}
                 />
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{authorProfile?.name || 'Benji'}</Typography>
-                  <Typography variant="caption" color="text.secondary">14 juillet 2026</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{articleAuthor?.name}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {article.published_at ? new Date(article.published_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+                  </Typography>
                 </Box>
               </Box>
             </Box>

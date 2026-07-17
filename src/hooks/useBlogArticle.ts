@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/client';
 
-const fallbackArticles = [
+const fallbackArticles: any[] = [
   {
     id: 'mock-1',
     title: 'Comment bien démarrer avec Copilot Studio',
@@ -11,7 +11,7 @@ const fallbackArticles = [
     video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     media_type: 'video',
     published_at: new Date().toISOString(),
-    blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' }
+    blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' },
   },
   {
     id: 'mock-2',
@@ -22,8 +22,8 @@ const fallbackArticles = [
     video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     media_type: 'video',
     published_at: new Date().toISOString(),
-    blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' }
-  }
+    blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' },
+  },
 ];
 
 export function useBlogArticle(slug: string) {
@@ -32,16 +32,18 @@ export function useBlogArticle(slug: string) {
     queryFn: async () => {
       try {
         const { data, error } = await supabase
-          .from('admin_articles')
-          .select('*, blog_categories(name, slug, color)')
+          .from('article_list')
+          .select('*')
           .eq('slug', slug)
-          .eq('is_published', true)
           .single();
-        
+
         if (error) throw error;
-        return data;
+        return {
+          ...data,
+          blog_categories: (data as any)?.category || (data as any)?.blog_categories,
+        };
       } catch (err) {
-        const mock = fallbackArticles.find(a => a.slug === slug);
+        const mock = fallbackArticles.find((a) => a.slug === slug);
         if (mock) return mock;
         throw err;
       }

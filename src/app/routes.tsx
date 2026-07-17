@@ -4,6 +4,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 // Pages publiques
 import { PortfolioHome } from '../pages/PortfolioHome';
 import { BlogArticle } from '../pages/BlogArticle';
+import { Privacy } from '../pages/Privacy';
+import { Essentials } from '../pages/Essentials';
 
 // Auth
 import { Login } from '../pages/auth/Login';
@@ -116,6 +118,8 @@ export function AppRoutes() {
       <Route path="/:user/videos/:slug" element={<BlogArticle />} />
 
       {/* ── 404 ─────────────────────────────────────────────────── */}
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/essentials" element={<Essentials />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

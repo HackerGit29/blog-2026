@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Container, Typography, Grid, Pagination, Chip, Skeleton, TextField, InputAdornment } from '@mui/material';
+import { Box, Container, Typography, Grid, Pagination, Skeleton, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useParams } from 'react-router-dom';
 import { Header, ProfileSection, ProjectTabs } from '../components/portfolio';
@@ -10,7 +10,6 @@ import { usePublicProfile } from '../hooks/usePublicProfile';
 import { ArticleCard } from '../components/blog/ArticleCard';
 import { BlogNewsletter } from '../components/blog/BlogNewsletter';
 import { TutorialCard } from '../components/blog/tutorials/TutorialCard';
-import { getTutorialEnhancement } from '../data/tutorialEnhancements';
 import { SEOHead, WebSiteJsonLd } from '../components/SEOHead';
 import { RessourcesTab } from '../components/resources/RessourcesTab';
 import { AProposTab } from '../components/about/AProposTab';
@@ -39,7 +38,7 @@ export function PortfolioHome() {
   }, [publicProfile]);
 
   const profileOverride = publicProfile ?? undefined;
-  const profileName = publicProfile?.name || 'Benji';
+  const profileName = publicProfile?.name || tenantUsername;
 
   return (
     <>
@@ -106,7 +105,7 @@ function BlogTab() {
   return (
     <Box sx={{ mb: 6 }}>
       <Typography variant="h5" component="h2" sx={{ fontWeight: 800, mb: 3, color: 'text.primary' }}>
-        Tous nos articles techniques et ressources
+        Articles
       </Typography>
       <Grid container spacing={3}>
         {articles.map((article: any) => (
@@ -126,7 +125,6 @@ function BlogTab() {
 
 function VideosTab() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('all');
 
   const { data: rawArticles, isLoading } = useBlogArticles({ mediaFilter: 'video' });
 
@@ -160,22 +158,22 @@ function VideosTab() {
   const filteredArticles = articles.filter((article: any) => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (article.summary && article.summary.toLowerCase().includes(searchQuery.toLowerCase()));
-    const enhancement = getTutorialEnhancement(article.slug);
-    const matchesLevel = selectedLevel === 'all' || enhancement.level === selectedLevel;
-    return matchesSearch && matchesLevel;
+    return matchesSearch;
   });
 
   return (
     <Box sx={{ mb: 6 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 850, mb: 3 }}>Tous les modules de formation</Typography>
+        <Typography variant="h5" component="h2" sx={{ fontWeight: 800, mb: 3, color: 'text.primary' }}>
+          Vidéos</Typography>
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12 }} sx={{ display: 'flex', justifyContent: { md: 'flex-end' } }}>
             <TextField
-              fullWidth size="small"
-              placeholder="Rechercher par mot-cle..."
+              size="small"
+              placeholder="Rechercher par mot-clé..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{ width: '100%', maxWidth: { md: 360 } }}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: 'text.secondary', fontSize: 20 }} /></InputAdornment>,
@@ -183,18 +181,6 @@ function VideosTab() {
                 }
               }}
             />
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: { md: 'flex-end' }, flexWrap: 'wrap' }}>
-            <Typography variant="body2" sx={{ fontWeight: 700, mr: 1, color: 'text.secondary' }}>Niveau :</Typography>
-            {['all', 'Debutant', 'Intermediaire', 'Avance'].map((level) => (
-              <Chip
-                key={level}
-                label={level === 'all' ? 'Tous' : level}
-                onClick={() => setSelectedLevel(level)}
-                color={selectedLevel === level ? 'primary' : 'default'}
-                sx={{ fontWeight: 700, borderRadius: '8px', cursor: 'pointer' }}
-              />
-            ))}
           </Grid>
         </Grid>
       </Box>
@@ -232,10 +218,10 @@ function VideosTab() {
               RECOMMANDATION DU GROUPE ETUDIANT
             </Typography>
             <Typography variant="h4" sx={{ fontWeight: 900, mt: 1, mb: 2, letterSpacing: '-0.5px' }}>
-              Pret a faire valider tes competences ?
+              Prêt à faire valider tes compétences ?
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 650, lineHeight: 1.6 }}>
-              Suis nos plans Microsoft Learn recommandes a cote de ces tutoriels video. Connecte-toi, demarre le plan, termine les modules pratiques, et partage ta reussite avec l'ambassadeur !
+              Explore les parcours conseillés à côté de ces tutoriels vidéo. Connecte-toi, suis les modules pratiques, et fais reconnaître tes acquis auprès de la communauté étudiante&nbsp;!
             </Typography>
           </Grid>
           <Grid size={{ xs: 12, md: 4 }} sx={{ display: { xs: 'none', md: 'block' } }}>

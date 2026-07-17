@@ -7,7 +7,7 @@ export interface ProfileData {
   location: string;
   description?: string;
   avatarUrl: string;
-  socials: { discord: string; github: string; instagram: string; linkedin?: string; twitter?: string; website?: string };
+  socials: { discord: string; github: string; instagram: string; linkedin: string; x: string; email: string; youtube: string };
   isVerified?: boolean;
   username?: string;
   followerCount?: number; // Nombre réel d'abonnés
@@ -31,6 +31,10 @@ const defaultProfile: ProfileData = {
     discord: 'https://discord.com/users/1373337350028923081',
     github: 'https://github.com/HackerGit29',
     instagram: 'https://instagram.com/mopaossi',
+    linkedin: '',
+    x: '',
+    email: '',
+    youtube: '',
   },
   isVerified: true,
   username: DEFAULT_TENANT,

@@ -39,3 +39,23 @@ body {
   max-width: 100%;
   border-radius: 8px;
 }
+
+/* ── Scrollbar ───────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F0EFEB;
+}
+::-webkit-scrollbar-thumb {
+  background: #1A1A1A;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1A1A1A #F0EFEB;
+}
