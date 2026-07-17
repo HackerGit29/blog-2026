@@ -4,58 +4,79 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useParams } from 'react-router-dom';
 import { Header, ProfileSection, ProjectTabs } from '../components/portfolio';
 import { CursorProvider, Cursor } from '../components/portfolio/AnimatedCursor';
-import { usePortfolioStore } from '../store/portfolio';
+import { usePortfolioStore, DEFAULT_TENANT } from '../store/portfolio';
 import { useBlogArticles } from '../hooks/useBlogArticles';
 import { usePublicProfile } from '../hooks/usePublicProfile';
 import { ArticleCard } from '../components/blog/ArticleCard';
 import { BlogNewsletter } from '../components/blog/BlogNewsletter';
 import { TutorialCard } from '../components/blog/tutorials/TutorialCard';
 import { getTutorialEnhancement } from '../data/tutorialEnhancements';
+import { SEOHead, WebSiteJsonLd } from '../components/SEOHead';
+import { RessourcesTab } from '../components/resources/RessourcesTab';
+import { AProposTab } from '../components/about/AProposTab';
 
 
 const tabs = ['blog', 'videos', 'ressources', 'apropos'];
 
 export function PortfolioHome() {
-  const { username } = useParams<{ username: string }>();
+  const { user } = useParams<{ user: string }>();
   const activeTab = usePortfolioStore((s) => s.activeTab);
+  const updateProfile = usePortfolioStore((s) => s.updateProfile);
   const currentTab = tabs[activeTab] || 'blog';
 
-  // Charge le profil public du tenant depuis Supabase (route /:username)
-  const { data: publicProfile } = usePublicProfile(username);
+  // Le tenant à afficher : param URL ou tenant par défaut
+  const tenantUsername = user || DEFAULT_TENANT;
 
-  // Le profileOverride est transmis à ProfileSection seulement si on est
-  // sur une route de profil public (/:username). Null sur la route racine.
-  const profileOverride = username ? (publicProfile ?? undefined) : undefined;
+  // Charge le profil public du tenant depuis Supabase
+  const { data: publicProfile } = usePublicProfile(tenantUsername);
+
+  // Synchronise le profil du tenant visité dans le store (cache offline)
+  // Séparé de ownProfile (user auth) — pas de collision
+  React.useEffect(() => {
+    if (publicProfile) {
+      updateProfile(publicProfile);
+    }
+  }, [publicProfile]);
+
+  const profileOverride = publicProfile ?? undefined;
+  const profileName = publicProfile?.name || 'Benji AKA Dev';
 
   return (
-    <CursorProvider>
-      <Cursor />
-      <Box sx={{ position: 'relative', minHeight: '100vh', pb: 10, overflowX: 'hidden' }}>
+    <>
+      <SEOHead
+        title={profileName}
+        description="Blog sur l'IA, Microsoft Learn, Power Platform, Cloud, DevOps et développement web. Tutoriels, articles techniques et ressources."
+      />
+      <WebSiteJsonLd />
+      <CursorProvider>
+        <Cursor />
+        <Box component="main" sx={{ position: 'relative', minHeight: '100vh', pb: 10, overflowX: 'hidden' }}>
         <div className="page-bg-gradient" />
         <Container maxWidth="xl" sx={{ pt: 2, px: { xs: 3, md: 8 } }}>
           <Header />
           <ProfileSection profileOverride={profileOverride} />
           <ProjectTabs />
-          <TabContent tab={currentTab} />
+          <TabContent tab={currentTab} username={tenantUsername} />
           <Box sx={{ mt: 8 }}>
             <BlogNewsletter />
           </Box>
-        </Container>
-      </Box>
-    </CursorProvider>
+      </Container>
+    </Box>
+  </CursorProvider>
+    </>
   );
 }
 
-function TabContent({ tab }: { tab: string }) {
+function TabContent({ tab, username }: { tab: string; username?: string }) {
   switch (tab) {
     case 'blog':
       return <BlogTab />;
     case 'videos':
       return <VideosTab />;
     case 'ressources':
-      return <RessourcesTab />;
+      return <RessourcesTab username={username} />;
     case 'apropos':
-      return <AProposTab />;
+      return <AProposTab username={username} />;
     default:
       return null;
   }
@@ -84,7 +105,7 @@ function BlogTab() {
 
   return (
     <Box sx={{ mb: 6 }}>
-      <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, color: 'text.primary' }}>
+      <Typography variant="h5" component="h2" sx={{ fontWeight: 800, mb: 3, color: 'text.primary' }}>
         Tous nos articles techniques et ressources
       </Typography>
       <Grid container spacing={3}>
@@ -147,7 +168,7 @@ function VideosTab() {
   return (
     <Box sx={{ mb: 6 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 850, mb: 3 }}>Tous les modules de formation</Typography>
+        <Typography variant="h5" component="h2" sx={{ fontWeight: 850, mb: 3 }}>Tous les modules de formation</Typography>
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
@@ -226,21 +247,5 @@ function VideosTab() {
         </Grid>
       </Box>
     </Box>
-  );
-}
-
-function RessourcesTab() {
-  return (
-    <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8, fontSize: '1.1rem' }}>
-      Ressources a venir
-    </Typography>
-  );
-}
-
-function AProposTab() {
-  return (
-    <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8, fontSize: '1.1rem' }}>
-      A propos a venir
-    </Typography>
   );
 }

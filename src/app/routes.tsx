@@ -3,9 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Pages publiques
 import { PortfolioHome } from '../pages/PortfolioHome';
-import { Blog } from '../pages/Blog';
 import { BlogArticle } from '../pages/BlogArticle';
-import { BlogVideos } from '../pages/BlogVideos';
 
 // Auth
 import { Login } from '../pages/auth/Login';
@@ -35,7 +33,7 @@ import { RootRedirect } from '../components/auth/RootRedirect';
  * Table de routage de l'application.
  *
  * Hiérarchie des accès :
- *   Public (par tenant) → /:user, /:user/blog, /:user/blog/:slug, /:user/videos
+ *   Public (par tenant) → /:user, /:user/blog/:slug, /:user/videos/:slug
  *   Auth               → /login, /inbox, /banned
  *   Admin              → /admin/*
  *   SuperAdmin only    → /admin/community
@@ -113,12 +111,9 @@ export function AppRoutes() {
       {/* ── Profil public /:user ────────────────────────────────── */}
       <Route path="/:user" element={<PortfolioHome />} />
 
-      {/* ── Blog du tenant /:user/blog ──────────────────────────── */}
-      <Route path="/:user/blog" element={<Blog />} />
+      {/* ── Contenu par slug : /:user/blog/:slug ou /:user/videos/:slug ── */}
       <Route path="/:user/blog/:slug" element={<BlogArticle />} />
-
-      {/* ── Vidéos du tenant /:user/videos ──────────────────────── */}
-      <Route path="/:user/videos" element={<BlogVideos />} />
+      <Route path="/:user/videos/:slug" element={<BlogArticle />} />
 
       {/* ── 404 ─────────────────────────────────────────────────── */}
       <Route path="*" element={<Navigate to="/" replace />} />

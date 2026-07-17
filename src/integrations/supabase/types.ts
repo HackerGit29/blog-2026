@@ -140,17 +140,59 @@ export type Database = {
         }
         Relationships: []
       }
-      message_reads: {
-        Row: { message_id: string; read_at: string | null; user_id: string }
-        Insert: { message_id: string; read_at?: string | null; user_id: string }
-        Update: { message_id?: string; read_at?: string | null; user_id?: string }
+      followers: {
+        Row: {
+          created_at: string | null
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
         Relationships: []
+      }
+      message_reads: {
+        Row: {
+          message_id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          message_id: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          message_id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
           author_id: string | null
           body: string
           cover_url: string | null
+          created_at: string | null
           cta_label: string | null
           cta_target: string | null
           cta_url: string | null
@@ -158,12 +200,12 @@ export type Database = {
           sent_at: string | null
           status: string | null
           title: string
-          created_at: string | null
         }
         Insert: {
           author_id?: string | null
           body: string
           cover_url?: string | null
+          created_at?: string | null
           cta_label?: string | null
           cta_target?: string | null
           cta_url?: string | null
@@ -171,12 +213,12 @@ export type Database = {
           sent_at?: string | null
           status?: string | null
           title: string
-          created_at?: string | null
         }
         Update: {
           author_id?: string | null
           body?: string
           cover_url?: string | null
+          created_at?: string | null
           cta_label?: string | null
           cta_target?: string | null
           cta_url?: string | null
@@ -184,7 +226,6 @@ export type Database = {
           sent_at?: string | null
           status?: string | null
           title?: string
-          created_at?: string | null
         }
         Relationships: []
       }
@@ -212,12 +253,127 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_reads: {
+        Row: {
+          notification_id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          notification_id: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          notification_id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          author_id: string | null
+          body: string | null
+          created_at: string | null
+          cta_label: string | null
+          cta_target: string | null
+          cta_url: string | null
+          icon: string | null
+          id: string
+          kind: Database["public"]["Enums"]["notif_kind"]
+          metadata: Json | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          body?: string | null
+          created_at?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          cta_url?: string | null
+          icon?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["notif_kind"]
+          metadata?: Json | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          body?: string | null
+          created_at?: string | null
+          cta_label?: string | null
+          cta_target?: string | null
+          cta_url?: string | null
+          icon?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["notif_kind"]
+          metadata?: Json | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tenant_resources: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_visible: boolean | null
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
+          follower_count: number | null
           followers: string | null
           following: string | null
           id: string
+          is_banned: boolean
           is_verified: boolean | null
           likes: string | null
           location: string | null
@@ -230,9 +386,11 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          follower_count?: number | null
           followers?: string | null
           following?: string | null
           id?: string
+          is_banned?: boolean
           is_verified?: boolean | null
           likes?: string | null
           location?: string | null
@@ -245,9 +403,11 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          follower_count?: number | null
           followers?: string | null
           following?: string | null
           id?: string
+          is_banned?: boolean
           is_verified?: boolean | null
           likes?: string | null
           location?: string | null
@@ -281,54 +441,6 @@ export type Database = {
         }
         Relationships: []
       }
-      notification_reads: {
-        Row: { notification_id: string; read_at: string | null; user_id: string }
-        Insert: { notification_id: string; read_at?: string | null; user_id: string }
-        Update: { notification_id?: string; read_at?: string | null; user_id?: string }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          body: string | null
-          cta_label: string | null
-          cta_target: string | null
-          cta_url: string | null
-          icon: string | null
-          id: string
-          kind: Database["public"]["Enums"]["notif_kind"]
-          metadata: Json | null
-          title: string
-          user_id: string
-          created_at: string | null
-        }
-        Insert: {
-          body?: string | null
-          cta_label?: string | null
-          cta_target?: string | null
-          cta_url?: string | null
-          icon?: string | null
-          id?: string
-          kind?: Database["public"]["Enums"]["notif_kind"]
-          metadata?: Json | null
-          title: string
-          user_id: string
-          created_at?: string | null
-        }
-        Update: {
-          body?: string | null
-          cta_label?: string | null
-          cta_target?: string | null
-          cta_url?: string | null
-          icon?: string | null
-          id?: string
-          kind?: Database["public"]["Enums"]["notif_kind"]
-          metadata?: Json | null
-          title?: string
-          user_id?: string
-          created_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       article_list: {
@@ -358,16 +470,78 @@ export type Database = {
           },
         ]
       }
+      user_profiles_with_formatted_followers: {
+        Row: {
+          avatar_url: string | null
+          follower_count: number | null
+          followers: string | null
+          following: string | null
+          formatted_followers: string | null
+          id: string | null
+          likes: string | null
+          location: string | null
+          name: string | null
+          socials: Json | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          follower_count?: number | null
+          followers?: string | null
+          following?: string | null
+          formatted_followers?: never
+          id?: string | null
+          likes?: string | null
+          location?: string | null
+          name?: string | null
+          socials?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          follower_count?: number | null
+          followers?: string | null
+          following?: string | null
+          formatted_followers?: never
+          id?: string | null
+          likes?: string | null
+          location?: string | null
+          name?: string | null
+          socials?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      format_follower_count: { Args: { count: number }; Returns: string }
+      get_user_id_by_email: { Args: { p_email: string }; Returns: string }
+      grant_superadmin: { Args: { p_email: string }; Returns: undefined }
+      is_banned: { Args: never; Returns: boolean }
+      is_superadmin: { Args: never; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "superadmin"
       article_status: "draft" | "scheduled" | "published" | "archived"
       media_type: "image" | "video"
-      notif_kind: "announcement" | "event" | "article" | "video" | "message" | "system"
+      notif_kind:
+        | "announcement"
+        | "event"
+        | "article"
+        | "video"
+        | "message"
+        | "system"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -498,10 +672,17 @@ export const Constants = {
   },
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "superadmin"],
       article_status: ["draft", "scheduled", "published", "archived"],
       media_type: ["image", "video"],
-      notif_kind: ["announcement", "event", "article", "video", "message", "system"],
+      notif_kind: [
+        "announcement",
+        "event",
+        "article",
+        "video",
+        "message",
+        "system",
+      ],
     },
   },
 } as const

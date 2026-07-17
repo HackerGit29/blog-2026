@@ -4,7 +4,6 @@ import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from '../../hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../integrations/supabase/client';
-import { PortfolioHome } from '../../pages/PortfolioHome';
 
 /**
  * RootRedirect — gère la route racine `/`.
@@ -48,6 +47,6 @@ export function RootRedirect() {
     return <Navigate to={`/${profile.username}`} replace />;
   }
 
-  // Visiteur non authentifié → affiche le profil par défaut du store
-  return <PortfolioHome />;
+  // Visiteur non authentifié → redirige vers le tenant par défaut
+  return <Navigate to="/" replace />;
 }

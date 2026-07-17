@@ -17,13 +17,20 @@ Déployé sur **Cloudflare Pages** avec **Supabase** comme backend, **Cloudflare
 │  │  (API)          │──┼──▶ Supabase (REST API)
 │  │  /api/articles  │  │       │
 │  │  /api/newsletter│  │       ├── admin_articles
-│  │  /sitemap.xml   │  │       ├── blog_categories
-│  └────────────────┘  │       └── newsletter_subscribers
-│                      │
-│  ┌────────────────┐  │     ┌──────────────────┐
-│  │  Static Assets  │  │     │  Turnstile.js    │
-│  │  (dist/)        │  │     │  (Cloudflare)    │
-│  └────────────────┘  │     └──────────────────┘
+│  │  /api/resources │  │       ├── blog_categories
+│  │  /sitemap.xml   │  │       ├── newsletter_subscribers
+│  └────────────────┘  │       ├── tenant_resources
+│                      │       ├── user_roles
+│  ┌────────────────┐  │       └── user_profiles
+│  │  Static Assets  │  │     ┌──────────────────┐
+│  │  (dist/)        │  │     │  Turnstile.js    │
+│  └────────────────┘  │     │  (Cloudflare)    │
+│                      │     └──────────────────┘
+│  JWT forwarding:     │
+│  CF Functions pass   │
+│  user's Authorization│
+│  header to Supabase  │
+│  for RLS enforcement │
 └──────────────────────┘
 ```
 
@@ -36,13 +43,13 @@ Déployé sur **Cloudflare Pages** avec **Supabase** comme backend, **Cloudflare
 | Routing | React Router 7 |
 | Data fetching | TanStack React Query 5 |
 | Forms | React Hook Form + Zod |
-| SEO | react-helmet-async + JSON-LD |
-| State | Zustand |
-| Animations | GSAP 3.15 + @gsap/react |
+| SEO | react-helmet-async + JSON-LD + Dublin Core |
+| State | Zustand (persist key: `portfolio-store-v2`) |
+| Animations | GSAP 3.15 + @gsap/react + Three.js (shader) |
 | Backend API | Cloudflare Pages Functions (Workers) |
 | Database | Supabase (PostgreSQL) |
 | Auth / Bot protection | Cloudflare Turnstile |
-| Déploiement | Cloudflare Pages (git push → auto-deploy) |
+| Déploiement | Cloudflare Pages (Wrangler CLI) |
 | Domaine | benji-aka-dev.site (Cloudflare DNS, Namecheap registrar) |
 
 ---
@@ -51,11 +58,12 @@ Déployé sur **Cloudflare Pages** avec **Supabase** comme backend, **Cloudflare
 
 | Route | Description |
 |-------|-------------|
-| `/` | Portfolio (tabs Blog/Vidéos/Ressources/À propos) |
-| `/blog` | Liste des articles avec pagination serveur |
-| `/blog/:slug` | Article détaillé |
-| `/blog/videos` | Tutoriels vidéo avec workspace interactif |
-| `/login` | Connexion admin (Supabase email/password) |
+| `/` | RootRedirect → `/:user` si connecté, sinon PortfolioHome par défaut (mopaossi) |
+| `/login` | Connexion admin (shader Three.js à gauche, formulaire à droite, accent `#FFE213`) |
+| `/:user` | Portfolio public (tabs Blog/Vidéos/Ressources/À propos) |
+| `/:user/blog` | Liste des articles avec pagination serveur |
+| `/:user/blog/:slug` | Article détaillé |
+| `/:user/videos` | Tutoriels vidéo avec workspace interactif |
 | `/admin` | Dashboard admin (articles, vidéos, communauté, réglages) |
 
 ---
@@ -84,6 +92,25 @@ Déployé sur **Cloudflare Pages** avec **Supabase** comme backend, **Cloudflare
 }
 ```
 
+### `GET /api/resources`
+
+Ressources tenant pour un utilisateur donné. Forward le JWT de l'utilisateur à Supabase pour l'application des politiques RLS.
+
+**Paramètres** (query string) :
+
+| Paramètre | Type | Obligatoire | Description |
+|-----------|------|-------------|-------------|
+| `username` | string | Oui | Nom d'utilisateur du tenant |
+
+**Sécurité** : Le header `Authorization` du client est transmis à Supabase. Si absent, la clé anon est utilisée (RLS applique `is_visible = true`).
+
+**Réponse** :
+```json
+[
+  { "id": "...", "title": "...", "description": "...", "url": "...", "category": "learn", "icon": "graduation-cap", "sort_order": 1 }
+]
+```
+
 ### `POST /api/newsletter`
 
 Inscription à la newsletter avec vérification Turnstile. Rate limiting : 5 requêtes/min/IP.
@@ -103,6 +130,7 @@ Sitemap XML dynamique listant toutes les pages et articles publiés.
 - **`newsletter_subscribers`** : Abonnés newsletter (email, source, statut)
 - **`user_roles`** : Rôles utilisateur (uid, role) — enum: `superadmin`, `admin`, `moderator`, `user`
 - **`user_profiles`** : Profils utilisateur (name, title, location, avatar_url, socials, stats, is_verified, is_banned, username)
+- **`tenant_resources`** : Ressources par tenant (user_id, title, description, url, category, icon, sort_order, is_visible)
 - **`messages`** : Messages in-app (title, body, cover, CTA, status, author_id)
 - **`message_reads`** : Statut de lecture des messages
 - **`notifications`** : Notifications (kind, title, body, icon, CTA, author_id)
@@ -119,6 +147,10 @@ Vue `article_list` : jointure admin_articles + blog_categories, filtrée sur is_
 | `user` | Profil public, messages reçus, notifications |
 | `banned` | Bloqué (is_banned=true) |
 
+### Sécurité JWT
+
+Les Cloudflare Functions forwardnt le header `Authorization` du client à Supabase pour l'application des politiques RLS. La clé anon (`SUPABASE_ANON_KEY`) est utilisée en fallback pour les requêtes non authentifiées. Les tokens ne sont jamais exposés côté client.
+
 ---
 
 ## Développement local
@@ -130,6 +162,7 @@ npm run dev             # → http://0.0.0.0:3000
 npm run build           # → dist/
 npm run lint            # tsc --noEmit
 supabase db push        # Appliquer les migrations
+npx wrangler pages deploy dist --project-name blog-2026 --branch main
 ```
 
 ### Variables d'environnement

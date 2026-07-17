@@ -22,6 +22,8 @@ export function BlogNewsletter() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [showTurnstile, setShowTurnstile] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
   const {
     register,
@@ -32,32 +34,52 @@ export function BlogNewsletter() {
     resolver: zodResolver(newsletterSchema),
   });
 
-  const onTurnstileVerify = useCallback((token: string) => {
-    setTurnstileToken(token);
-    setErrorMessage(null);
-  }, []);
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const onSubmit = (data: NewsletterFormData) => {
-    if (!turnstileToken) {
-      setErrorMessage('Veuillez valider le captcha.');
-      return;
-    }
+  const submitNewsletter = useCallback((email: string, token: string) => {
     setSuccessMessage(null);
     setErrorMessage(null);
-    mutate({ email: data.email, turnstileToken }, {
+    mutate({ email, turnstileToken: token }, {
       onSuccess: () => {
         setSuccessMessage('Merci ! Votre inscription à la newsletter a été enregistrée avec succès.');
         setDialogOpen(true);
         setTurnstileToken(null);
+        setShowTurnstile(false);
+        setPendingEmail(null);
         reset();
       },
       onError: (err: any) => {
         setErrorMessage(err.message || 'Une erreur est survenue lors de l\'inscription.');
         setTurnstileToken(null);
+        setShowTurnstile(false);
+        setPendingEmail(null);
       },
     });
+  }, [mutate, reset]);
+
+  const onTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setErrorMessage(null);
+    if (pendingEmail) {
+      submitNewsletter(pendingEmail, token);
+    }
+  }, [pendingEmail, submitNewsletter]);
+
+  const onTurnstileExpire = useCallback(() => setTurnstileToken(null), []);
+  const onTurnstileError = useCallback(() => {
+    setTurnstileToken(null);
+    setShowTurnstile(false);
+    setErrorMessage('Erreur de vérification. Réessayez.');
+  }, []);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const onSubmit = (data: NewsletterFormData) => {
+    if (turnstileToken) {
+      submitNewsletter(data.email, turnstileToken);
+      return;
+    }
+    setPendingEmail(data.email);
+    setShowTurnstile(true);
+    setErrorMessage(null);
   };
 
   return (
@@ -158,8 +180,9 @@ export function BlogNewsletter() {
           <TurnstileWidget
             siteKey={import.meta.env.VITE_TURNSTILE_SITEKEY}
             onVerify={onTurnstileVerify}
-            onExpire={() => setTurnstileToken(null)}
-            onError={() => setTurnstileToken(null)}
+            onExpire={onTurnstileExpire}
+            onError={onTurnstileError}
+            enabled={showTurnstile}
           />
 
           <Button 

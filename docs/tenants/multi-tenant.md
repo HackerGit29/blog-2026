@@ -30,6 +30,18 @@ Architecture multi-tenant où chaque utilisateur avec le rôle `admin` ou `super
 - `is_verified` (boolean, protégé par trigger)
 - `is_banned` (boolean)
 
+### `tenant_resources`
+- `id` (uuid, PK)
+- `user_id` (uuid, FK auth.users, index)
+- `title` (text, not null)
+- `description` (text)
+- `url` (text, not null)
+- `category` (text, default 'learn') — valeurs: `learn`, `platform`, `tool`, `community`
+- `icon` (text, default 'link')
+- `sort_order` (int, default 0)
+- `is_visible` (boolean, default true)
+- `created_at`, `updated_at` (timestamptz)
+
 ---
 
 ## RLS Policies
@@ -47,11 +59,28 @@ Architecture multi-tenant où chaque utilisateur avec le rôle `admin` ou `super
 - SELECT : `auth.uid() = user_id` (any user can read own role)
 - INSERT/UPDATE/DELETE : `is_superadmin()` only
 
+### `tenant_resources`
+- SELECT : `is_visible = true` (public read for visible resources)
+- ALL (INSERT/UPDATE/DELETE) : `auth.uid() = user_id` (owner manages own resources)
+
 ### `messages`, `notifications`
 - SELECT/INSERT/UPDATE/DELETE : `is_superadmin() OR (auth.uid() = author_id AND role IN ('admin', 'superadmin'))`
 
 ### `blog_categories`
 - ALL : `is_superadmin() OR role = 'admin'`
+
+---
+
+## Sécurité JWT
+
+Les Cloudflare Functions (`functions/api/`) implémentent le forwarding du JWT utilisateur :
+
+1. **Extraction** : Le header `Authorization` de la requête entrante est extrait.
+2. **Forwarding** : Si le header contient un JWT valide (`Bearer eyJ...`), il est transmis à Supabase REST API.
+3. **Fallback** : Sans header `Authorization`, la clé anon (`SUPABASE_ANON_KEY`) est utilisée.
+4. **RLS** : Supabase applique les politiques RLS en fonction du token. Pour `tenant_resources`, la policy `is_visible = true` permet l'accès public. Pour les endpoints authentifiés, la policy vérifie `auth.uid() = user_id`.
+
+**Règle** : Les tokens ne sont jamais exposés côté client. Le `VITE_SUPABASE_PUBLISHABLE_KEY` est la clé anon publique (protégée par RLS).
 
 ---
 
@@ -75,3 +104,5 @@ Les migrations appliquées :
 5. `20260720000002` : Enum superadmin ajouté
 6. `20260720000003` : RLS superadmin/ban system
 7. `20260721000001` : Fix user_roles RLS (restore SELECT own role)
+8. `20260722000001` : Table `tenant_resources`
+9. `20260722000002` : Seed 20 ressources Microsoft par défaut (admin tenant)

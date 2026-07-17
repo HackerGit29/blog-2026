@@ -1,0 +1,58 @@
+# Benji AKA Dev
+
+> Blog technique francophone sur l'IA, Microsoft Learn, Power Platform, Cloud Azure, DevOps et développement web.
+> Auteur : Benji AKA Dev — Microsoft Student Ambassador, Community Influencer, passionné de technologies Microsoft.
+
+## Qui suis-je ?
+
+Étudiant et développeur passionné par l'intelligence artificielle, le cloud Azure et les technologies Microsoft. 
+Je partage des tutoriels, des plans d'apprentissage et des ressources pour aider la communauté étudiante 
+à monter en compétences sur les technologies Microsoft.
+
+## Contenu principal
+
+### Articles techniques
+- Tutoriels Microsoft Learn et Copilot Studio
+- Guides Power Platform (Power Automate, Power Apps, Power BI)
+- Projets DevOps avec GitHub Actions et Azure
+- Développement web et IA générative
+- Plans certifiants Microsoft (AI-102, AZ-900, DP-900)
+
+### Tutoriels vidéo
+- Débuter avec Copilot Studio
+- Maîtriser le Prompt Engineering
+- Plans d'apprentissage recommandés Microsoft Learn
+- Azure for Students pas à pas
+
+### Ressources Microsoft recommandées
+- Plans Microsoft Learn (AI, Azure, Power Platform, DevOps, Sécurité)
+- Microsoft Foundry (IA générative)
+- Azure for Students (crédit 100$ gratuit)
+- GitHub Student Developer Pack
+- Microsoft Student Ambassadors
+- Imagine Cup
+
+## Pages du site
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Accueil | https://benji-aka-dev.site/ | Portfolio et blog principal |
+| Blog | https://benji-aka-dev.site/blog | Tous les articles techniques |
+| Tutoriels vidéo | https://benji-aka-dev.site/blog/videos | Formations vidéo Microsoft Learn |
+| Ressources | https://benji-aka-dev.site/ressources | Liens utiles Microsoft |
+| Connexion | https://benji-aka-dev.site/login | Accès administrateur |
+
+## Mots-clés principaux
+- Microsoft Learn Student Ambassador
+- Tutoriel Microsoft Learn français
+- Azure for Students France
+- Copilot Studio débutant
+- Power Platform formation
+- IA générative apprentissage
+- GitHub Student Pack
+- Certification Azure AI-102
+- DevOps CI/CD Azure
+- Communauté Microsoft France
+
+## Mise à jour
+Dernière mise à jour : juillet 2026

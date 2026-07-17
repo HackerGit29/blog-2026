@@ -1,3 +1,61 @@
 User-agent: *
 Allow: /
 Sitemap: https://benji-aka-dev.site/sitemap.xml
+
+# Prioritize fresh content
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot-Image
+Allow: /*.svg
+Allow: /*.png
+Allow: /*.jpg
+Allow: /assets/
+
+# Bing / Microsoft Edge
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: MicrosoftStartBot
+Allow: /
+
+User-agent: adidxbot
+Allow: /
+
+# AI crawlers — allow indexing for AI-generated answers
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: ClaudeBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+Crawl-delay: 2
+
+User-agent: CCBot
+Allow: /
+Crawl-delay: 2
+
+# Block crawl of admin-only paths
+User-agent: *
+Disallow: /admin
+Disallow: /inbox
+Disallow: /api/

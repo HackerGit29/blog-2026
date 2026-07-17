@@ -6,6 +6,7 @@ import { usePortfolioStore, ProfileData } from '../../store/portfolio';
 import { useAuth } from '../../hooks/useAuth';
 import { motion } from 'motion/react';
 import { Magnetic } from './Magnetic';
+import { FollowButton } from './FollowButton';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
@@ -13,13 +14,13 @@ import { Draggable } from 'gsap/Draggable';
 
 gsap.registerPlugin(MotionPathPlugin, Draggable);
 
-const StatBox = ({ value, label }: { value: string; label: string }) => (
-  <Stack sx={{ alignItems: { xs: 'center', md: 'center' }, gap: 0.5 }}>
+const FollowerBox = ({ formattedCount, label }: { formattedCount: string; label: string }) => (
+  <Stack sx={{ alignItems: 'center', gap: 0.5 }}>
     <Typography variant="body1" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500 }}>
       {label}
     </Typography>
     <Typography variant="h2" sx={{ letterSpacing: '-1px', color: 'text.primary', fontWeight: 700 }}>
-      {value}
+      {formattedCount}
     </Typography>
   </Stack>
 );
@@ -134,7 +135,7 @@ export function ProfileSection({ profileOverride }: { profileOverride?: ProfileD
 
       <Box ref={textRef} sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
          <Stack direction="row" sx={{ gap: 2, mb: 1, alignItems: 'center', justifyContent: { xs: 'center', md: 'flex-start' } }}>
-            <Typography variant="h2" sx={{ letterSpacing: '-1.5px', color: 'text.primary', fontWeight: 700 }}>
+            <Typography variant="h2" component="h1" sx={{ letterSpacing: '-1.5px', color: 'text.primary', fontWeight: 700 }}>
               {profile.name}
             </Typography>
             {profile.isVerified && (
@@ -155,15 +156,11 @@ export function ProfileSection({ profileOverride }: { profileOverride?: ProfileD
            {!isOwnProfile && (
              <>
                <Magnetic>
-                 <Button
-                   variant="contained"
-                   color="primary"
+                 <FollowButton
+                   targetUsername={profile.username ?? ''}
+                   isOwnProfile={isOwnProfile}
                    size="large"
-                   sx={{ px: 5, py: 1.2 }}
-                   onClick={() => guardedNavigate(`/u/${profile.username ?? ''}/follow`)}
-                 >
-                   Suivre
-                 </Button>
+                 />
                </Magnetic>
                <Magnetic magneticPull={0.15}>
                  <Button
@@ -182,42 +179,40 @@ export function ProfileSection({ profileOverride }: { profileOverride?: ProfileD
 
       <Box ref={badgesRef} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-end' }, gap: 4 }}>
          <Stack direction="row" sx={{ gap: 3, alignItems: 'center' }}>
-           <Box
-             component="a"
-             href={profile.socials.discord}
-             target="_blank"
-             rel="noopener noreferrer"
-             className="badge-svg discord-badge"
-             sx={{ width: 96, height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-           >
-             <Box component="img" src="/assets/discord.svg" alt="Discord" sx={{ width: '100%', height: '100%' }} />
-           </Box>
-           <Box
-             component="a"
-             href={profile.socials.github}
-             target="_blank"
-             rel="noopener noreferrer"
-             className="badge-svg github-badge"
-             sx={{ width: 96, height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-           >
-             <Box component="img" src="/assets/github.svg" alt="GitHub" sx={{ width: '100%', height: '100%' }} />
-           </Box>
-           <Box
-             component="a"
-             href={profile.socials.instagram}
-             target="_blank"
-             rel="noopener noreferrer"
-             className="badge-svg instagram-badge"
-             sx={{ width: 96, height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-           >
-             <Box component="img" src="/assets/instagram.svg" alt="Instagram" sx={{ width: '100%', height: '100%' }} />
-           </Box>
+            <Box
+              component="a"
+              href={profile.socials.discord}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="badge-svg discord-badge"
+              sx={{ width: 90, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
+              <Box component="img" src="/assets/discord.svg" alt="Discord" width={90} height={90} />
+            </Box>
+            <Box
+              component="a"
+              href={profile.socials.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="badge-svg github-badge"
+              sx={{ width: 90, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
+              <Box component="img" src="/assets/github.svg" alt="GitHub" width={90} height={80} />
+            </Box>
+            <Box
+              component="a"
+              href={profile.socials.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="badge-svg instagram-badge"
+              sx={{ width: 78, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
+              <Box component="img" src="/assets/instagram.svg" alt="Instagram" width={78} height={80} />
+            </Box>
          </Stack>
 
          <Stack direction="row" sx={{ gap: { xs: 3, sm: 6 }, mt: 2 }}>
-           <StatBox value={profile.followers} label="Abonnés" />
-           <StatBox value={profile.following} label="Abonnements" />
-           <StatBox value={profile.likes} label="J'aime" />
+           <FollowerBox formattedCount={profile.formattedFollowers || '0'} label="Abonnés" />
          </Stack>
       </Box>
     </Box>

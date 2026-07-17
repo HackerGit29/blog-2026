@@ -14,7 +14,8 @@ export function useNewsletterSubscribe() {
         body: JSON.stringify({ email, turnstileToken }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
 
       if (!res.ok) {
         throw new Error(data.error || 'Erreur lors de l\'inscription');

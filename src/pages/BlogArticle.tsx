@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Container, Typography, Chip, CircularProgress, Button, Divider } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useBlogArticle } from '../hooks/useBlogArticle';
-import { BlogLayout } from '../components/blog/BlogLayout';
 import { getEmbedUrl } from '../lib/videoUtils';
 import { TutorialWorkspace } from '../components/blog/tutorials/TutorialWorkspace';
 import { getTutorialEnhancement } from '../data/tutorialEnhancements';
@@ -11,33 +10,31 @@ import { MicrosoftBanners } from '../components/blog/MicrosoftBanners';
 import { getMicrosoftTech } from '../lib/microsoft/content';
 import { SEOHead, BlogPostingJsonLd } from '../components/SEOHead';
 import { createSafeMarkup } from '../lib/sanitize';
+import { usePublicProfile } from '../hooks/usePublicProfile';
 
 export function BlogArticle() {
   const { slug, user } = useParams<{ slug: string; user: string }>();
   const navigate = useNavigate();
   const { data, isLoading, error } = useBlogArticle(slug || '');
   const article = data as any;
+  const { data: authorProfile } = usePublicProfile(user);
   const tech = getMicrosoftTech(article?.slug);
   const base = `/${user ?? 'admin'}`;
 
   if (isLoading) {
     return (
-      <BlogLayout>
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 12 }}>
-          <CircularProgress />
-        </Box>
-      </BlogLayout>
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 12, minHeight: '100vh' }}>
+        <CircularProgress />
+      </Box>
     );
   }
 
   if (error || !article) {
     return (
-      <BlogLayout>
-        <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
-          <Typography variant="h5" color="error" gutterBottom>Article non trouvé</Typography>
-          <Button onClick={() => navigate(`${base}/blog`)} variant="contained" sx={{ mt: 2 }}>Retour au blog</Button>
-        </Container>
-      </BlogLayout>
+      <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
+        <Typography variant="h5" color="error" gutterBottom>Article non trouvé</Typography>
+        <Button onClick={() => navigate(base)} variant="contained" sx={{ mt: 2 }}>Retour au profil</Button>
+      </Container>
     );
   }
 
@@ -74,15 +71,14 @@ export function BlogArticle() {
         image={article.image_url || undefined}
         publishedAt={article.published_at || article.created_at}
       />
-      <BlogLayout>
-      <Container maxWidth={isVideoTutorial ? "lg" : "md"} sx={{ py: 4 }}>
+      <Container maxWidth={isVideoTutorial ? "lg" : "md"} sx={{ py: 4, minHeight: '100vh' }}>
         {/* Universal Back Navigation */}
         <Button 
           startIcon={<ArrowBack />} 
-          onClick={() => navigate(isVideoTutorial ? `${base}/videos` : `${base}/blog`)}
+          onClick={() => navigate(base)}
           sx={{ mb: 4, color: 'text.secondary', fontWeight: 700 }}
         >
-          {isVideoTutorial ? 'Retour aux tutoriels' : 'Retour au blog'}
+          Retour au profil
         </Button>
 
         {isVideoTutorial && enhancement ? (
@@ -126,7 +122,7 @@ export function BlogArticle() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
                 <Box 
                   component="img" 
-                  src="https://ui-avatars.com/api/?name=Benji&background=194943&color=fff" 
+                  src={authorProfile?.avatarUrl || 'https://ui-avatars.com/api/?name=Benji&background=194943&color=fff'} 
                   sx={{ width: 48, height: 48, borderRadius: '50%' }}
                 />
                 <Box>
@@ -171,7 +167,6 @@ export function BlogArticle() {
           </Box>
         )}
       </Container>
-    </BlogLayout>
     </>
   );
 }

@@ -7,11 +7,19 @@
 | `npm run dev` | Dev server on `0.0.0.0:3000` |
 | `npm run lint` | `tsc --noEmit` (only typecheck, no linter) |
 | `npm run build` | `vite build` → `dist/` |
+| `npm run clean` | `rm -rf dist server.js` |
 | `supabase db push` | Apply Supabase migrations |
 | `supabase gen types typescript --linked > src/integrations/supabase/types.ts` | Regenerate DB types |
-| `npm run clean` | `rm -rf dist server.js` |
+| `npx wrangler pages deploy dist --project-name blog-2026 --branch main` | Deploy to Cloudflare Pages |
 
 No test framework configured.
+
+## Deploy
+
+Deployment uses Wrangler (Cloudflare CLI). If `npx` hangs, use the full path:
+```
+rtk C:\Users\paoss\AppData\Roaming\npm\npx.cmd --yes wrangler@4.110.0 pages deploy dist --project-name blog-2026 --branch main
+```
 
 ## MUI v9
 
@@ -28,8 +36,8 @@ Renamed props:
 
 | Route | Component | Auth |
 |-------|-----------|------|
-| `/` | RootRedirect → `/:username` if logged in, else PortfolioHome | — |
-| `/login` | Login (redirects to `/` if already logged in) | — |
+| `/` | RootRedirect → `/:user` if logged in, else PortfolioHome | — |
+| `/login` | Login (shader left + form right, `#FFE213` accent) | — |
 | `/inbox` | Inbox | AuthGuard |
 | `/banned` | Banned | — |
 | `/admin` | AdminLayout (nested routes below) | AuthGuard + AdminGuard |
@@ -44,21 +52,28 @@ Renamed props:
 | `/:user/blog/:slug` | BlogArticle | — |
 | `/:user/videos` | BlogVideos | — |
 
+**IMPORTANT**: Route param is `:user` (not `:username`). Use `useParams<{ user: string }>()`.
+
 ## Architecture
 
-- **API**: Cloudflare Pages Functions in `functions/api/` (`/api/articles`, `/api/newsletter`). `PagesFunction<Env>` interface.
-- **DB**: Supabase. Migrations in `supabase/migrations/`. Tables: `admin_articles`, `blog_categories`, `newsletter_subscribers`, `user_roles`, `user_profiles`, `messages`, `message_reads`, `notifications`, `notification_reads`.
-- **Portfolio**: GSAP animations, zustand store (`src/store/portfolio.ts`) with `persist` middleware (localStorage cache). Profile data synced to `user_profiles` table via `useProfile` hook.
+- **API**: Cloudflare Pages Functions in `functions/api/`. `PagesFunction<Env>` interface.
+  - `/api/articles` — paginated articles (anon key, public)
+  - `/api/newsletter` — subscription with Turnstile (anon key, public)
+  - `/api/resources` — tenant resources by username (forwards user JWT to Supabase RLS)
+  - `/sitemap.xml` — dynamic XML sitemap (anon key, public)
+- **DB**: Supabase. Migrations in `supabase/migrations/`. Tables: `admin_articles`, `blog_categories`, `newsletter_subscribers`, `user_roles`, `user_profiles`, `messages`, `message_reads`, `notifications`, `notification_reads`, `tenant_resources`.
+- **Portfolio**: GSAP animations, zustand store (`src/store/portfolio.ts`) with `persist` middleware (localStorage, key `portfolio-store-v2`). Profile data synced to `user_profiles` table via `useProfile` hook. Default tenant: `mopaossi`.
 - **Auth**: Supabase email/password. Role hierarchy: `superadmin` > `admin` > `user`. Banned users blocked at AuthGuard level.
+- **JWT Security**: CF Functions forward the user's Authorization header to Supabase for RLS enforcement. Never expose `SUPABASE_ANON_KEY` on the client. The `VITE_SUPABASE_PUBLISHABLE_KEY` is the public anon key (protected by RLS).
 - **Admin**: Auth via Supabase email/password. Role check via `user_roles` table. BlockNote v6 editor (sync `tryParseHTMLToBlocks`, no `.then()`).
-- **Images**: Static SVGs in `public/assets/`, referenced as `/assets/*.svg`. User avatars in Supabase Storage bucket `avatars`.
-- **SEO**: `SEOHead.tsx` for meta/OG/Twitter/JSON-LD. Dynamic sitemap at `/sitemap.xml`.
+- **Images**: Static SVGs in `public/assets/`, referenced as `/assets/*.svg`. User avatars in Supabase Storage bucket `avatars` (uploaded via `useProfile.uploadAvatar()`).
+- **SEO**: `SEOHead.tsx` for meta/OG/Twitter/JSON-LD/Dublin Core. Dynamic sitemap at `/sitemap.xml`. `google-site-verification` = `a084537dcebf8a31`. `robots.txt` allows all crawlers. `llms-full.txt` for AI indexing.
 
 ## Key stores
 
 | Store | File | Purpose |
 |-------|------|---------|
-| `usePortfolioStore` | `src/store/portfolio.ts` | activeTab + profile data, persisted to localStorage |
+| `usePortfolioStore` | `src/store/portfolio.ts` | activeTab + profile data, persisted to localStorage (key: `portfolio-store-v2`) |
 | `useInboxStore` | `src/store/inbox.ts` | inbox open state |
 
 ## Gotchas
@@ -70,3 +85,8 @@ Renamed props:
 - GSAP SVG flip animation chains across Instagram → GitHub → Discord in a loop.
 - Profile data lives in zustand (localStorage cache) + Supabase `user_profiles` table. Always write to both.
 - `useRole()` returns `{ role, isAdmin, isSuperAdmin, isBanned, isVerified }`. Admin = role 'admin' OR 'superadmin'. SuperAdmin = role 'superadmin' only.
+- Route param is `:user` — use `useParams<{ user: string }>()`, NOT `{ username }`.
+- CF Functions forward user JWT to Supabase. The `Authorization` header from the client is passed to Supabase REST API for RLS enforcement. Anon key is fallback for unauthenticated requests.
+- `vendor-animation` chunk removed from manualChunks (circular dependency fix). GSAP/motion in main `vendor` chunk.
+- Login page: Three.js shader animation left (55%), form right (45%), `#FFE213` accent, no admin links, no overlay text on shader.
+- BlogArticle: no BlogLayout/Nav, avatar from `usePublicProfile(user)`.

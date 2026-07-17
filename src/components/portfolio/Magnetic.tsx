@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { usePortfolioStore } from '../../store/portfolio';
 
 interface MagneticProps {
   children: React.ReactElement;
@@ -9,8 +10,11 @@ interface MagneticProps {
 
 export function Magnetic({ children, magneticPull = 0.3 }: MagneticProps) {
   const magnetic = useRef<HTMLDivElement>(null);
+  const magneticEnabled = usePortfolioStore((s) => s.magneticEnabled);
 
   useGSAP(() => {
+    if (!magneticEnabled) return;
+
     const xTo = gsap.quickTo(magnetic.current, "x", { duration: 1, ease: "elastic.out(1, 0.3)" });
     const yTo = gsap.quickTo(magnetic.current, "y", { duration: 1, ease: "elastic.out(1, 0.3)" });
 
@@ -38,7 +42,9 @@ export function Magnetic({ children, magneticPull = 0.3 }: MagneticProps) {
         element.removeEventListener("mouseleave", handleMouseLeave);
       };
     }
-  }, { scope: magnetic });
+  }, { scope: magnetic, dependencies: [magneticEnabled] });
+
+  if (!magneticEnabled) return children;
 
   return React.cloneElement(children, { ref: magnetic } as Record<string, unknown>);
 }

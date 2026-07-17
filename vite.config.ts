@@ -2,9 +2,28 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
+const isUI = (id: string) =>
+  /@mui|@emotion|@fontsource/.test(id);
+const isEditor = (id: string) =>
+  /@blocknote|prosemirror|tiptap|@tiptap/.test(id);
+
 export default defineConfig(() => {
   return {
-    plugins: [react()], build: { sourcemap: true },
+    plugins: [react()],
+    build: {
+      sourcemap: false,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (isUI(id)) return 'vendor-ui';
+              if (isEditor(id)) return 'vendor-editor';
+              return 'vendor';
+            }
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

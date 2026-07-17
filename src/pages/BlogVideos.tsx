@@ -11,6 +11,7 @@ import { TutorialCard } from '../components/blog/tutorials/TutorialCard';
 import { getTutorialEnhancement } from '../data/tutorialEnhancements';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { SEOHead } from '../components/SEOHead';
 
 // Recommended learning paths to link tutorials to Microsoft Learn
 import { learnPlans } from '../data/learnPlans';
@@ -75,7 +76,12 @@ export function BlogVideos() {
   });
 
   return (
-    <BlogLayout>
+    <>
+      <SEOHead
+        title="Tutoriels vidéo"
+        description="Tutoriels vidéo sur l'IA, Microsoft Copilot, Power Platform et le développement. Formations pratiques avec Microsoft Learn."
+      />
+      <BlogLayout>
       <Container maxWidth="lg" sx={{ py: 6 }}>
         {/* Hero Section */}
         <Box sx={{ mb: 6, textAlign: 'center', maxWidth: 800, mx: 'auto' }}>
@@ -266,5 +272,6 @@ export function BlogVideos() {
         </Box>
       </Container>
     </BlogLayout>
+    </>
   );
 }

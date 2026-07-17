@@ -54,7 +54,7 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
             boxShadow: '0 8px 30px rgba(var(--mui-palette-primary-mainChannel), 0.05)'
           }
         }}
-        onClick={() => navigate(`${base}/blog/${article.slug}`)}
+        onClick={() => navigate(`${base}/videos/${article.slug}`)}
       >
       <Box sx={{ position: 'relative' }}>
         <CardMedia

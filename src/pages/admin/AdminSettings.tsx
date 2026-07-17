@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, Paper, Grid, Divider } from '@mui/material';
-import { Save, Github, Instagram, MessageSquare, User, Tag, MapPin, Image, ShieldAlert, Heart, Users, UserCheck } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Typography, TextField, Button, Paper, Grid, Divider, Avatar, IconButton, CircularProgress } from '@mui/material';
+import { Save, Github, Instagram, Linkedin, Twitter, MessageSquare, User, Tag, MapPin, Image, ShieldAlert, Heart, Users, UserCheck, Camera } from 'lucide-react';
 import { usePortfolioStore } from '../../store/portfolio';
 import { useProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../hooks/useAuth';
@@ -28,12 +28,17 @@ export function AdminSettings() {
     github: '',
     discord: '',
     instagram: '',
+    linkedin: '',
+    twitter: '',
+    website: '',
   });
 
   const [usernameInput, setUsernameInput] = useState('');
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const [usernameMessage, setUsernameMessage] = useState('');
   const [saved, setSaved] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { uploadAvatar, uploading } = useProfile();
 
   useEffect(() => {
     if (profile) {
@@ -45,6 +50,9 @@ export function AdminSettings() {
         github: profile.socials?.github || '',
         discord: profile.socials?.discord || '',
         instagram: profile.socials?.instagram || '',
+        linkedin: profile.socials?.linkedin || '',
+        twitter: profile.socials?.twitter || '',
+        website: profile.socials?.website || '',
       });
       setUsernameInput(profile.username || '');
     }
@@ -102,6 +110,13 @@ export function AdminSettings() {
     return () => clearTimeout(timer);
   }, [usernameInput, profile.username]);
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await uploadAvatar(file);
+    setForm(p => ({ ...p, avatarUrl: url }));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const finalUsername = formatUsername(usernameInput);
@@ -126,6 +141,9 @@ export function AdminSettings() {
         github: form.github,
         discord: form.discord,
         instagram: form.instagram,
+        linkedin: form.linkedin,
+        twitter: form.twitter,
+        website: form.website,
       },
     };
     updateProfile(updated);
@@ -239,23 +257,32 @@ export function AdminSettings() {
                 }}
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
-              <TextField
-                label="URL de l'avatar"
-                value={form.avatarUrl}
-                onChange={e => setForm(p => ({ ...p, avatarUrl: e.target.value }))}
-                required
-                fullWidth
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <Box sx={{ color: 'text.secondary', mr: 1.5, display: 'flex' }}>
-                        <Image size={18} />
-                      </Box>
-                    ),
-                  },
-                }}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ position: 'relative' }}>
+                  <Avatar src={form.avatarUrl} sx={{ width: 64, height: 64 }} />
+                  <IconButton
+                    size="small"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploading}
+                    sx={{
+                      position: 'absolute',
+                      bottom: -4,
+                      right: -4,
+                      bgcolor: 'primary.main',
+                      color: '#fff',
+                      '&:hover': { bgcolor: 'primary.dark' },
+                      width: 28,
+                      height: 28,
+                    }}
+                  >
+                    {uploading ? <CircularProgress size={14} color="inherit" /> : <Camera size={14} />}
+                  </IconButton>
+                </Box>
+                <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Cliquez sur l'icône pour changer la photo de profil
+                </Typography>
+              </Box>
             </Box>
           </Paper>
 
