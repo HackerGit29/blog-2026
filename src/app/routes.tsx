@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Pages publiques
 import { PortfolioHome } from '../pages/PortfolioHome';
-import { MonCompte } from '../pages/MonCompte';
+
 import { BlogArticle } from '../pages/BlogArticle';
 import { Privacy } from '../pages/Privacy';
 import { Essentials } from '../pages/Essentials';
@@ -89,9 +89,6 @@ export function AppRoutes() {
 
       {/* Legacy */}
       <Route path="/admin/content" element={<AdminGuard><AdminContent /></AdminGuard>} />
-
-      {/* ── Mon compte (privé, auth requis) ────────────────────── */}
-      <Route path="/mon-compte" element={<AuthGuard><MonCompte /></AuthGuard>} />
 
       {/* ── Profil public /:user ────────────────────────────────── */}
       <Route path="/:user" element={<PortfolioHome />} />

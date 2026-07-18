@@ -145,7 +145,7 @@ export function Header() {
                 <Avatar
                   src={optimizedAvatar(profile.avatarUrl, 80)}
                   alt={profile.name}
-                  onClick={() => navigate('/mon-compte')}
+                  onClick={() => setSettingsOpen(true)}
                   slotProps={{ img: { loading: 'lazy' } }}
                   sx={{
                     width: 40, height: 40, cursor: 'pointer',
