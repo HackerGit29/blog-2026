@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/client';
 
 export interface TenantResource {
-  id: string;
   title: string;
   description: string;
   url: string;
@@ -22,7 +21,6 @@ async function fetchResourcesViaApi(username: string): Promise<TenantResource[] 
 }
 
 async function fetchResourcesViaSupabase(username: string): Promise<TenantResource[]> {
-  // 1. Récupérer l'user_id depuis le username
   const { data: profile } = await supabase
     .from('user_profiles')
     .select('user_id')
@@ -32,15 +30,14 @@ async function fetchResourcesViaSupabase(username: string): Promise<TenantResour
 
   if (!profile?.user_id) return [];
 
-  // 2. Récupérer les ressources visibles
-  const { data: resources } = await supabase
-    .from('tenant_resources')
-    .select('id,title,description,url,category,icon,sort_order')
+  const { data: bundle } = await supabase
+    .from('tenant_resources_bundle')
+    .select('resources')
     .eq('user_id', profile.user_id)
-    .eq('is_visible', true)
-    .order('sort_order', { ascending: true });
+    .limit(1)
+    .maybeSingle();
 
-  return (resources as TenantResource[]) || [];
+  return (bundle?.resources as unknown as TenantResource[]) || [];
 }
 
 export function useTenantResources(username?: string) {
@@ -49,11 +46,9 @@ export function useTenantResources(username?: string) {
     queryFn: async (): Promise<TenantResource[]> => {
       if (!username) return [];
 
-      // Essayer d'abord via la Cloudflare Function (production)
       const viaApi = await fetchResourcesViaApi(username);
       if (viaApi) return viaApi;
 
-      // Fallback direct Supabase (dev local ou si API indisponible)
       return fetchResourcesViaSupabase(username);
     },
     enabled: !!username,

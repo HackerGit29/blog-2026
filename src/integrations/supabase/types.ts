@@ -324,44 +324,20 @@ export type Database = {
         }
         Relationships: []
       }
-      tenant_resources: {
+      tenant_resources_bundle: {
         Row: {
-          category: string
-          created_at: string | null
-          description: string | null
-          icon: string | null
-          id: string
-          is_visible: boolean | null
-          sort_order: number | null
-          title: string
+          resources: Json
           updated_at: string | null
-          url: string
           user_id: string
         }
         Insert: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          is_visible?: boolean | null
-          sort_order?: number | null
-          title: string
+          resources?: Json
           updated_at?: string | null
-          url: string
           user_id: string
         }
         Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          icon?: string | null
-          id?: string
-          is_visible?: boolean | null
-          sort_order?: number | null
-          title?: string
+          resources?: Json
           updated_at?: string | null
-          url?: string
           user_id?: string
         }
         Relationships: []
@@ -369,6 +345,9 @@ export type Database = {
       user_profiles: {
         Row: {
           avatar_url: string | null
+          can_access_admin: boolean
+          created_at: string | null
+          description: string | null
           follower_count: number | null
           followers: string | null
           following: string | null
@@ -386,6 +365,9 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          can_access_admin?: boolean
+          created_at?: string | null
+          description?: string | null
           follower_count?: number | null
           followers?: string | null
           following?: string | null
@@ -403,6 +385,9 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          can_access_admin?: boolean
+          created_at?: string | null
+          description?: string | null
           follower_count?: number | null
           followers?: string | null
           following?: string | null
@@ -445,6 +430,8 @@ export type Database = {
     Views: {
       article_list: {
         Row: {
+          author: Json | null
+          author_id: string | null
           category: Json | null
           category_id: string | null
           created_at: string | null
@@ -473,11 +460,14 @@ export type Database = {
       user_profiles_with_formatted_followers: {
         Row: {
           avatar_url: string | null
+          created_at: string | null
+          description: string | null
           follower_count: number | null
           followers: string | null
           following: string | null
           formatted_followers: string | null
           id: string | null
+          is_verified: boolean | null
           likes: string | null
           location: string | null
           name: string | null
@@ -489,11 +479,14 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
           follower_count?: number | null
           followers?: string | null
           following?: string | null
           formatted_followers?: never
           id?: string | null
+          is_verified?: boolean | null
           likes?: string | null
           location?: string | null
           name?: string | null
@@ -505,11 +498,14 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
           follower_count?: number | null
           followers?: string | null
           following?: string | null
           formatted_followers?: never
           id?: string | null
+          is_verified?: boolean | null
           likes?: string | null
           location?: string | null
           name?: string | null
@@ -526,6 +522,7 @@ export type Database = {
       format_follower_count: { Args: { count: number }; Returns: string }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
       grant_superadmin: { Args: { p_email: string }; Returns: undefined }
+      is_admin_user: { Args: never; Returns: boolean }
       is_banned: { Args: never; Returns: boolean }
       is_superadmin: { Args: never; Returns: boolean }
       show_limit: { Args: never; Returns: number }

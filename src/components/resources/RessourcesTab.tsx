@@ -54,8 +54,8 @@ export function RessourcesTab({ username }: { username?: string }) {
 
   return (
     <Box sx={{ mb: 6 }}>
-      {resources.map((resource) => (
-        <ResourceLine key={resource.id} resource={resource} />
+      {resources.map((resource, i) => (
+        <ResourceLine key={i} resource={resource} />
       ))}
     </Box>
   );

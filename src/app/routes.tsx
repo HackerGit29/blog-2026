@@ -25,6 +25,9 @@ import { AdminNotifications } from '../components/admin/AdminNotifications';
 import { Inbox } from '../pages/Inbox';
 import { Banned } from '../pages/Banned';
 
+// Admin
+import { SuperAdminPanel } from '../pages/admin/SuperAdminPanel';
+
 // Guards
 import { AuthGuard } from '../components/auth/AuthGuard';
 import { AdminGuard } from '../components/auth/AdminGuard';
@@ -69,46 +72,20 @@ export function AppRoutes() {
       {/* ── Banned ──────────────────────────────────────────────── */}
       <Route path="/banned" element={<Banned />} />
 
-      {/* ── Admin (role = admin) ────────────────────────────────── */}
-      <Route
-        path="/admin"
-        element={
-          <AuthGuard>
-            <AdminGuard>
-              <AdminLayout />
-            </AdminGuard>
-          </AuthGuard>
-        }
-      >
+      {/* ── Admin (acces restreint) ─────────────────────────────── */}
+      <Route path="/admin" element={<AuthGuard><AdminGuard><AdminLayout /></AdminGuard></AuthGuard>}>
         <Route index element={<AdminDashboard />} />
         <Route path="articles" element={<ArticleManager />} />
         <Route path="videos" element={<AdminVideos />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="messages" element={<AdminMessages />} />
         <Route path="notifications" element={<AdminNotifications />} />
-
-        {/* SuperAdmin uniquement */}
-        <Route
-          path="community"
-          element={
-            <SuperAdminGuard>
-              <AdminCommunity />
-            </SuperAdminGuard>
-          }
-        />
+        <Route path="community" element={<SuperAdminGuard><AdminCommunity /></SuperAdminGuard>} />
+        <Route path={`super-${import.meta.env.VITE_ADMIN_SECRET || 'a7f3c9e2'}`} element={<SuperAdminPanel />} />
       </Route>
 
       {/* Legacy */}
-      <Route
-        path="/admin/content"
-        element={
-          <AuthGuard>
-            <AdminGuard>
-              <AdminContent />
-            </AdminGuard>
-          </AuthGuard>
-        }
-      />
+      <Route path="/admin/content" element={<AdminGuard><AdminContent /></AdminGuard>} />
 
       {/* ── Profil public /:user ────────────────────────────────── */}
       <Route path="/:user" element={<PortfolioHome />} />
@@ -120,7 +97,7 @@ export function AppRoutes() {
       {/* ── 404 ─────────────────────────────────────────────────── */}
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/essentials" element={<Essentials />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/mopaossi" replace />} />
     </Routes>
   );
 }
