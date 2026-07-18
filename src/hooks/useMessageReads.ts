@@ -25,8 +25,7 @@ export function useMessageReads() {
       if (!user) return;
       const { data: msgs } = await supabase
         .from('messages')
-        .select('id')
-        .eq('status', 'sent');
+        .select('id');
       if (!msgs) return;
       const rows = (msgs as any[]).map((m) => ({
         message_id: m.id,

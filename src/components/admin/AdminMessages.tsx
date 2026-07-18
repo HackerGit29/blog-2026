@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Box, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, IconButton, Chip, Tooltip, Stack } from '@mui/material';
-import { Plus, Send, Trash2, Edit } from 'lucide-react';
+import { Box, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, IconButton, Tooltip, Stack } from '@mui/material';
+import { Plus, Trash2, Edit } from 'lucide-react';
 import { useAdminMessages, type MessageInput } from '../../hooks/useAdminMessages';
 
 const CTA_OPTIONS = [
@@ -12,7 +12,7 @@ const CTA_OPTIONS = [
 ];
 
 export function AdminMessages() {
-  const { messages, create, update, remove, send } = useAdminMessages();
+  const { messages, create, update, remove } = useAdminMessages();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MessageInput>({
@@ -54,23 +54,18 @@ export function AdminMessages() {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 700 }}>Titre</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Statut</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Envoyé le</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Publié le</TableCell>
               <TableCell sx={{ fontWeight: 700, textAlign: 'right' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {messages.length === 0 ? (
-              <TableRow><TableCell colSpan={4} align="center" sx={{ py: 6, color: 'text.secondary' }}>Aucun message</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} align="center" sx={{ py: 6, color: 'text.secondary' }}>Aucun message</TableCell></TableRow>
             ) : messages.map((m: any) => (
               <TableRow key={m.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell><Typography variant="body2" sx={{ fontWeight: 600 }}>{m.title}</Typography></TableCell>
-                <TableCell><Chip label={m.status} size="small" color={m.status === 'sent' ? 'success' : 'default'} sx={{ fontWeight: 600, textTransform: 'capitalize' }} /></TableCell>
                 <TableCell><Typography variant="body2" sx={{ color: 'text.secondary' }}>{m.sent_at ? new Date(m.sent_at).toLocaleString('fr-FR') : '—'}</Typography></TableCell>
                 <TableCell sx={{ textAlign: 'right' }}>
-                  {m.status === 'draft' && (
-                    <Tooltip title="Envoyer"><IconButton size="small" onClick={() => send.mutate(m.id)}><Send size={16} /></IconButton></Tooltip>
-                  )}
                   <Tooltip title="Modifier"><IconButton size="small" onClick={() => handleOpen(m)}><Edit size={16} /></IconButton></Tooltip>
                   <Tooltip title="Supprimer"><IconButton size="small" onClick={() => remove.mutate(m.id)}><Trash2 size={16} /></IconButton></Tooltip>
                 </TableCell>
@@ -98,7 +93,7 @@ export function AdminMessages() {
         </DialogContent>
         <DialogActions sx={{ p: 2.5, gap: 1 }}>
           <Button onClick={() => setOpen(false)} variant="outlined" sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 600 }}>Annuler</Button>
-          <Button variant="contained" onClick={handleSave} sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 600 }}>Enregistrer</Button>
+          <Button variant="contained" onClick={handleSave} sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 600 }}>Publier</Button>
         </DialogActions>
       </Dialog>
     </Box>

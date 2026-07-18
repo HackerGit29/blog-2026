@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useInboxStore } from '../store/inbox';
+import { playNotificationSound } from '../lib/notificationSound';
 import type { CtaTarget } from './useMessages';
 
 export type NotifKind = 'announcement' | 'event' | 'article' | 'video' | 'message' | 'system';
@@ -27,7 +28,8 @@ export function useNotifications() {
   const setUnread = useInboxStore((s) => s.setUnread);
   const increment = useInboxStore((s) => s.increment);
 
-  const { data: notifications = [], isLoading } = useQuery({
+  // Fetch all notifications for the current user (raw, unfiltered)
+  const { data: allNotifications = [], isLoading } = useQuery({
     queryKey: ['notifications', user?.id],
     queryFn: async (): Promise<Notification[]> => {
       if (!user) return [];
@@ -43,6 +45,7 @@ export function useNotifications() {
     enabled: !!user,
   });
 
+  // Fetch notification IDs that the user has read
   const { data: reads = new Set<string>() } = useQuery({
     queryKey: ['notification-reads', user?.id],
     queryFn: async (): Promise<Set<string>> => {
@@ -57,7 +60,28 @@ export function useNotifications() {
     enabled: !!user,
   });
 
-  const unreadCount = notifications.filter((n) => !reads.has(n.id)).length;
+  // Fetch notification IDs that the user has explicitly dismissed
+  const { data: deletes = new Set<string>() } = useQuery({
+    queryKey: ['notification-deletes', user?.id],
+    queryFn: async (): Promise<Set<string>> => {
+      if (!user) return new Set();
+      const { data, error } = await supabase
+        .from('notification_deletes')
+        .select('notification_id')
+        .eq('user_id', user.id);
+      if (error) throw error;
+      return new Set((data ?? []).map((r: any) => r.notification_id));
+    },
+    enabled: !!user,
+  });
+
+  // Filter: only notifications the user hasn't read or dismissed
+  const notifications = allNotifications.filter(
+    (n) => !reads.has(n.id) && !deletes.has(n.id)
+  );
+
+  const unreadCount = notifications.length;
+  const dismissedCount = deletes.size;
 
   useEffect(() => {
     setUnread('notif', unreadCount);
@@ -76,6 +100,7 @@ export function useNotifications() {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
+          playNotificationSound();
           increment('notif');
           queryClient.invalidateQueries({ queryKey: ['notifications', user.id] });
         }
@@ -86,5 +111,5 @@ export function useNotifications() {
     };
   }, [user, queryClient, increment]);
 
-  return { notifications, reads, unreadCount, isLoading };
+  return { notifications, reads, deletes, unreadCount, dismissedCount, isLoading };
 }

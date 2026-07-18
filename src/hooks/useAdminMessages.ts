@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/client';
 import { useAuth } from './useAuth';
-import type { CtaTarget } from './useMessages';
 
 export interface MessageInput {
   title: string;
@@ -9,7 +8,7 @@ export interface MessageInput {
   cover_url?: string | null;
   cta_label?: string | null;
   cta_url?: string | null;
-  cta_target?: CtaTarget;
+  cta_target?: 'article' | 'video' | 'external' | 'message' | 'none';
 }
 
 export function useAdminMessages() {
@@ -19,6 +18,8 @@ export function useAdminMessages() {
   const { data: messages = [] } = useQuery({
     queryKey: ['admin-messages'],
     queryFn: async () => {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      await supabase.from('messages').delete().lt('created_at', sevenDaysAgo);
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -30,8 +31,9 @@ export function useAdminMessages() {
 
   const create = useMutation({
     mutationFn: async (input: MessageInput) => {
-      const { data, error } = await (supabase.from('messages') as any)
-        .insert({ ...input, author_id: user?.id, status: 'draft' })
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({ ...input, author_id: user?.id, status: 'sent', sent_at: new Date().toISOString() })
         .select()
         .single();
       if (error) throw error;
@@ -42,7 +44,8 @@ export function useAdminMessages() {
 
   const update = useMutation({
     mutationFn: async ({ id, ...input }: MessageInput & { id: string }) => {
-      const { error } = await (supabase.from('messages') as any)
+      const { error } = await supabase
+        .from('messages')
         .update(input)
         .eq('id', id);
       if (error) throw error;
@@ -58,15 +61,5 @@ export function useAdminMessages() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-messages'] }),
   });
 
-  const send = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await (supabase.from('messages') as any)
-        .update({ status: 'sent', sent_at: new Date().toISOString() })
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-messages'] }),
-  });
-
-  return { messages, create, update, remove, send };
+  return { messages, create, update, remove };
 }
