@@ -9,6 +9,7 @@ import { Essentials } from '../pages/Essentials';
 
 // Auth
 import { Login } from '../pages/auth/Login';
+import { Onboarding } from '../pages/Onboarding';
 
 // Admin
 import { AdminContent } from '../pages/AdminContent';
@@ -58,6 +59,7 @@ export function AppRoutes() {
 
       {/* ── Auth ────────────────────────────────────────────────── */}
       <Route path="/login" element={<Login />} />
+      <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
 
       {/* ── Inbox (auth requis) ─────────────────────────────────── */}
       <Route
@@ -97,7 +99,7 @@ export function AppRoutes() {
       {/* ── 404 ─────────────────────────────────────────────────── */}
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/essentials" element={<Essentials />} />
-      <Route path="*" element={<Navigate to="/mopaossi" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

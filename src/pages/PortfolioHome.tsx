@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Container, Typography, Grid, Pagination, Skeleton, TextField, InputAdornment } from '@mui/material';
+import { Box, Container, Typography, Grid, Pagination, Skeleton, TextField, InputAdornment, Chip, Link as MuiLink } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Header, ProfileSection, ProjectTabs } from '../components/portfolio';
 import { CursorProvider, Cursor } from '../components/portfolio/AnimatedCursor';
 import { usePortfolioStore, DEFAULT_TENANT } from '../store/portfolio';
@@ -39,6 +39,8 @@ export function PortfolioHome() {
 
   const profileOverride = publicProfile ?? undefined;
   const profileName = publicProfile?.name || tenantUsername;
+  const ownProfile = usePortfolioStore((s) => s.ownProfile);
+  const isOwner = !!(ownProfile?.username && tenantUsername === ownProfile.username);
 
   return (
     <>

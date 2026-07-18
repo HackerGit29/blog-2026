@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Button, Alert, CircularProgress, IconButton
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../integrations/supabase/client';
 import { ShaderAnimation } from '../../components/ui/ShaderAnimation';
 import { TurnstileWidget } from '../../components/TurnstileWidget';
 
@@ -94,7 +95,7 @@ export function Login() {
   const onTurnstileExpire = useCallback(() => setTurnstileToken(null), []);
 
   if (authLoading) return null;
-  if (user) { navigate('/', { replace: true }); return null; }
+  if (user) { navigate('/onboarding', { replace: true }); return null; }
 
   const doLogin = async () => {
     setSubmitting(true);
@@ -105,8 +106,13 @@ export function Login() {
         setError('Compte créé ! Vérifiez votre email.');
         setIsRegister(false);
       } else {
-        await signInWithEmail(email, password);
-        navigate('/', { replace: true });
+        const { user } = await signInWithEmail(email, password);
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('username')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        navigate(profile?.username ? `/${profile.username}` : '/onboarding', { replace: true });
       }
       setShowTurnstile(false);
       setTurnstileToken(null);

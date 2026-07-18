@@ -5,15 +5,9 @@ import { useAuth } from '../../hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../integrations/supabase/client';
 
-/**
- * RootRedirect — gère la route racine `/`.
- * - Si l'utilisateur est authentifié → redirige vers /:username (son profil public).
- * - Si non connecté → affiche le PortfolioHome par défaut (données du store).
- */
 export function RootRedirect() {
   const { user, loading: authLoading } = useAuth();
 
-  // Récupère le username de l'utilisateur connecté pour la redirection
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['my_profile_username', user?.id],
     queryFn: async () => {
@@ -30,14 +24,7 @@ export function RootRedirect() {
 
   if (authLoading || (user && profileLoading)) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '100vh',
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
       </Box>
     );
@@ -47,6 +34,9 @@ export function RootRedirect() {
     return <Navigate to={`/${profile.username}`} replace />;
   }
 
-  // Visiteur non authentifié → redirige vers le tenant par défaut
-  return <Navigate to="/" replace />;
+  if (user) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return <Navigate to="/mopaossi" replace />;
 }
