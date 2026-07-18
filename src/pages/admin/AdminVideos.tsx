@@ -1,22 +1,26 @@
 import { useState } from 'react';
-import { Box, Typography, TextField, Paper, Chip } from '@mui/material';
+import { Box, Typography, TextField, Paper } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../integrations/supabase/client';
+import { useAuth } from '../../hooks/useAuth';
 import { ArticleCard } from '../../components/blog/ArticleCard';
 import { Search, Video } from 'lucide-react';
 
 export function AdminVideos() {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const { data } = useQuery({
-    queryKey: ['admin-videos'],
+    queryKey: ['admin-videos', user?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from('admin_articles')
         .select('*, blog_categories(name)')
+        .eq('author_id', user!.id)
         .eq('media_type', 'video')
         .order('created_at', { ascending: false });
       return (data || []) as any[];
     },
+    enabled: !!user,
   });
   const videos = (data || []).filter((v: any) => !search || v.title.toLowerCase().includes(search.toLowerCase()));
 
