@@ -65,6 +65,8 @@ interface PortfolioState {
   updateOwnProfile: (data: Partial<ProfileData>) => void;
   /** Réinitialise ownProfile à null (déconnexion). */
   clearOwnProfile: () => void;
+  /** Reset complet du profil au défaut (déconnexion). */
+  resetProfile: () => void;
   setMagneticEnabled: (enabled: boolean) => void;
   setCursorEnabled: (enabled: boolean) => void;
 }
@@ -87,6 +89,7 @@ export const usePortfolioStore = create<PortfolioState>()(
             : { ...defaultProfile, ...data },
         })),
       clearOwnProfile: () => set({ ownProfile: null }),
+      resetProfile: () => set({ profile: defaultProfile, ownProfile: null }),
       setMagneticEnabled: (enabled) => set({ magneticEnabled: enabled }),
       setCursorEnabled: (enabled) => set({ cursorEnabled: enabled }),
     }),

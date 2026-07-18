@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Box, Container, Typography, Grid, Pagination, Skeleton, TextField, InputAdornment, Chip, Link as MuiLink } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Container, Typography, Grid, Pagination, Skeleton, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Header, ProfileSection, ProjectTabs } from '../components/portfolio';
 import { CursorProvider, Cursor } from '../components/portfolio/AnimatedCursor';
-import { usePortfolioStore, DEFAULT_TENANT } from '../store/portfolio';
+import { usePortfolioStore } from '../store/portfolio';
 import { useBlogArticles } from '../hooks/useBlogArticles';
 import { usePublicProfile } from '../hooks/usePublicProfile';
 import { ArticleCard } from '../components/blog/ArticleCard';
@@ -14,7 +14,6 @@ import { SEOHead, WebSiteJsonLd } from '../components/SEOHead';
 import { RessourcesTab } from '../components/resources/RessourcesTab';
 import { AProposTab } from '../components/about/AProposTab';
 
-
 const tabs = ['blog', 'videos', 'ressources', 'apropos'];
 
 export function PortfolioHome() {
@@ -23,24 +22,17 @@ export function PortfolioHome() {
   const updateProfile = usePortfolioStore((s) => s.updateProfile);
   const currentTab = tabs[activeTab] || 'blog';
 
-  // Le tenant à afficher : param URL ou tenant par défaut
-  const tenantUsername = user || DEFAULT_TENANT;
-
-  // Charge le profil public du tenant depuis Supabase
+  const tenantUsername = user || '';
   const { data: publicProfile } = usePublicProfile(tenantUsername);
 
-  // Synchronise le profil du tenant visité dans le store (cache offline)
-  // Séparé de ownProfile (user auth) — pas de collision
-  React.useEffect(() => {
+  useEffect(() => {
     if (publicProfile) {
       updateProfile(publicProfile);
     }
-  }, [publicProfile]);
+  }, [publicProfile, updateProfile]);
 
   const profileOverride = publicProfile ?? undefined;
   const profileName = publicProfile?.name || tenantUsername;
-  const ownProfile = usePortfolioStore((s) => s.ownProfile);
-  const isOwner = !!(ownProfile?.username && tenantUsername === ownProfile.username);
 
   return (
     <>

@@ -140,12 +140,12 @@ export function Header() {
             </>
           )}
 
-           {user && !loading ? (
+            {user && !loading ? (
              <Magnetic magneticPull={0.1}>
                 <Avatar
                   src={optimizedAvatar(profile.avatarUrl, 80)}
                   alt={profile.name}
-                  onClick={() => setSettingsOpen(true)}
+                  onClick={() => navigate('/mon-compte')}
                   slotProps={{ img: { loading: 'lazy' } }}
                   sx={{
                     width: 40, height: 40, cursor: 'pointer',

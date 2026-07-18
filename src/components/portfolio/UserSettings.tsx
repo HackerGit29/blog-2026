@@ -19,7 +19,7 @@ import type { TransitionProps } from '@mui/material/transitions';
 import { LogOut, Camera } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePortfolioStore } from '../../store/portfolio';
+import { usePortfolioStore, DEFAULT_TENANT } from '../../store/portfolio';
 import { useProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../hooks/useAuth';
 import { optimizedAvatar } from '../../lib/optimizedUrl';
@@ -83,7 +83,7 @@ export function UserSettings({ open, onClose }: UserSettingsProps) {
   const handleSignOut = async () => {
     await signOut();
     onClose();
-    navigate('/');
+    navigate(`/${DEFAULT_TENANT}`);
   };
 
   return (

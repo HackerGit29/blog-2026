@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, TextField, useTheme } from '@mui/material';
+import { useState } from 'react';
+import { Box, Typography, TextField, Paper, Chip } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../integrations/supabase/client';
 import { ArticleCard } from '../../components/blog/ArticleCard';
-import { Search } from 'lucide-react';
+import { Search, Video } from 'lucide-react';
 
 export function AdminVideos() {
   const [search, setSearch] = useState('');
@@ -22,27 +22,25 @@ export function AdminVideos() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 800 }}>Vidéos</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>{videos.length} tutoriels vidéo</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>{videos.length} tutoriel(s) vidéo</Typography>
         </Box>
-        <TextField
-          size="small" placeholder="Rechercher..."
-          value={search} onChange={e => setSearch(e.target.value)}
+        <TextField size="small" placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)}
           slotProps={{ input: { startAdornment: <Search size={16} style={{ marginRight: 8 }} /> } }}
-          sx={{ minWidth: 250, '& .MuiOutlinedInput-root': { borderRadius: '30px' } }}
-        />
+          sx={{ minWidth: 250, '& .MuiOutlinedInput-root': { borderRadius: '30px' } }} />
       </Box>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 3 }}>
-        {videos.map((v: any) => (
-          <ArticleCard key={v.id} article={v} />
-        ))}
-      </Box>
-      {videos.length === 0 && (
-        <Typography variant="body1" sx={{ color: 'text.secondary', textAlign: 'center', py: 8 }}>
-          Aucune vidéo trouvée
-        </Typography>
+
+      {videos.length === 0 ? (
+        <Paper elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
+          <Video size={40} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
+          <Typography variant="body1" sx={{ color: 'text.secondary' }}>Aucune vidéo trouvée</Typography>
+        </Paper>
+      ) : (
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 3 }}>
+          {videos.map((v: any) => <ArticleCard key={v.id} article={v} />)}
+        </Box>
       )}
     </Box>
   );

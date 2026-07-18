@@ -1,22 +1,5 @@
 import { useState } from 'react';
-import {
-  Box,
-  Stack,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  MenuItem,
-  IconButton,
-} from '@mui/material';
+import { Box, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, IconButton, Chip, Tooltip, Stack } from '@mui/material';
 import { Plus, Send, Trash2, Edit } from 'lucide-react';
 import { useAdminMessages, type MessageInput } from '../../hooks/useAdminMessages';
 
@@ -33,25 +16,13 @@ export function AdminMessages() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<MessageInput>({
-    title: '',
-    body: '',
-    cover_url: '',
-    cta_label: '',
-    cta_url: '',
-    cta_target: 'none',
+    title: '', body: '', cover_url: '', cta_label: '', cta_url: '', cta_target: 'none',
   });
 
   const handleOpen = (msg?: any) => {
     if (msg) {
       setEditingId(msg.id);
-      setForm({
-        title: msg.title,
-        body: msg.body,
-        cover_url: msg.cover_url ?? '',
-        cta_label: msg.cta_label ?? '',
-        cta_url: msg.cta_url ?? '',
-        cta_target: msg.cta_target ?? 'none',
-      });
+      setForm({ title: msg.title, body: msg.body, cover_url: msg.cover_url ?? '', cta_label: msg.cta_label ?? '', cta_url: msg.cta_url ?? '', cta_target: msg.cta_target ?? 'none' });
     } else {
       setEditingId(null);
       setForm({ title: '', body: '', cover_url: '', cta_label: '', cta_url: '', cta_target: 'none' });
@@ -60,114 +31,74 @@ export function AdminMessages() {
   };
 
   const handleSave = () => {
-    if (editingId) {
-      update.mutate({ id: editingId, ...form });
-    } else {
-      create.mutate(form);
-    }
+    if (editingId) { update.mutate({ id: editingId, ...form }); }
+    else { create.mutate(form); }
     setOpen(false);
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4">Messages</Typography>
-        <Button variant="contained" startIcon={<Plus size={18} />} onClick={() => handleOpen()}>
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800 }}>Messages</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>{messages.length} message(s)</Typography>
+        </Box>
+        <Button variant="contained" startIcon={<Plus size={18} />} onClick={() => handleOpen()}
+          sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 700, px: 3 }}>
           Nouveau message
         </Button>
-      </Stack>
+      </Box>
 
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Titre</TableCell>
-            <TableCell>Statut</TableCell>
-            <TableCell>Envoyé le</TableCell>
-            <TableCell align="right">Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {messages.map((m: any) => (
-            <TableRow key={m.id}>
-              <TableCell>{m.title}</TableCell>
-              <TableCell>{m.status}</TableCell>
-              <TableCell>{m.sent_at ? new Date(m.sent_at).toLocaleString('fr-FR') : '—'}</TableCell>
-              <TableCell align="right">
-                {m.status === 'draft' && (
-                  <IconButton size="small" onClick={() => send.mutate(m.id)} title="Envoyer">
-                    <Send size={18} />
-                  </IconButton>
-                )}
-                <IconButton size="small" onClick={() => handleOpen(m)}>
-                  <Edit size={18} />
-                </IconButton>
-                <IconButton size="small" onClick={() => remove.mutate(m.id)}>
-                  <Trash2 size={18} />
-                </IconButton>
-              </TableCell>
+      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700 }}>Titre</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Statut</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Envoyé le</TableCell>
+              <TableCell sx={{ fontWeight: 700, textAlign: 'right' }}>Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {messages.length === 0 ? (
+              <TableRow><TableCell colSpan={4} align="center" sx={{ py: 6, color: 'text.secondary' }}>Aucun message</TableCell></TableRow>
+            ) : messages.map((m: any) => (
+              <TableRow key={m.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                <TableCell><Typography variant="body2" sx={{ fontWeight: 600 }}>{m.title}</Typography></TableCell>
+                <TableCell><Chip label={m.status} size="small" color={m.status === 'sent' ? 'success' : 'default'} sx={{ fontWeight: 600, textTransform: 'capitalize' }} /></TableCell>
+                <TableCell><Typography variant="body2" sx={{ color: 'text.secondary' }}>{m.sent_at ? new Date(m.sent_at).toLocaleString('fr-FR') : '—'}</Typography></TableCell>
+                <TableCell sx={{ textAlign: 'right' }}>
+                  {m.status === 'draft' && (
+                    <Tooltip title="Envoyer"><IconButton size="small" onClick={() => send.mutate(m.id)}><Send size={16} /></IconButton></Tooltip>
+                  )}
+                  <Tooltip title="Modifier"><IconButton size="small" onClick={() => handleOpen(m)}><Edit size={16} /></IconButton></Tooltip>
+                  <Tooltip title="Supprimer"><IconButton size="small" onClick={() => remove.mutate(m.id)}><Trash2 size={16} /></IconButton></Tooltip>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md">
-        <DialogTitle>{editingId ? 'Modifier le message' : 'Nouveau message'}</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ fontWeight: 700 }}>{editingId ? 'Modifier le message' : 'Nouveau message'}</DialogTitle>
+        <DialogContent dividers>
           <Stack sx={{ gap: 2, mt: 1 }}>
-            <TextField
-              label="Titre"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Corps (HTML autorisé)"
-              value={form.body}
-              onChange={(e) => setForm({ ...form, body: e.target.value })}
-              multiline
-              rows={8}
-              fullWidth
-            />
-            <TextField
-              label="URL de couverture (optionnel)"
-              value={form.cover_url}
-              onChange={(e) => setForm({ ...form, cover_url: e.target.value })}
-              fullWidth
-            />
+            <TextField label="Titre" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} fullWidth required />
+            <TextField label="Corps (HTML autorisé)" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} multiline rows={8} fullWidth />
+            <TextField label="URL de couverture (optionnel)" value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} fullWidth />
             <Stack direction="row" sx={{ gap: 2 }}>
-              <TextField
-                select
-                label="Type de CTA"
-                value={form.cta_target}
-                onChange={(e) => setForm({ ...form, cta_target: e.target.value as MessageInput['cta_target'] })}
-                sx={{ minWidth: 200 }}
-              >
-                {CTA_OPTIONS.map((o) => (
-                  <MenuItem key={o.value} value={o.value}>
-                    {o.label}
-                  </MenuItem>
-                ))}
+              <TextField select label="Type de CTA" value={form.cta_target} onChange={(e) => setForm({ ...form, cta_target: e.target.value as MessageInput['cta_target'] })} sx={{ minWidth: 200 }}>
+                {CTA_OPTIONS.map((o) => (<MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>))}
               </TextField>
-              <TextField
-                label="Label du bouton"
-                value={form.cta_label}
-                onChange={(e) => setForm({ ...form, cta_label: e.target.value })}
-                sx={{ flex: 1 }}
-              />
+              <TextField label="Label du bouton" value={form.cta_label} onChange={(e) => setForm({ ...form, cta_label: e.target.value })} sx={{ flex: 1 }} />
             </Stack>
-            <TextField
-              label="URL du CTA (slug article, ID vidéo, URL externe, etc.)"
-              value={form.cta_url}
-              onChange={(e) => setForm({ ...form, cta_url: e.target.value })}
-              fullWidth
-            />
+            <TextField label="URL du CTA (slug article, ID vidéo, URL externe, etc.)" value={form.cta_url} onChange={(e) => setForm({ ...form, cta_url: e.target.value })} fullWidth />
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleSave}>
-            Enregistrer
-          </Button>
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
+          <Button onClick={() => setOpen(false)} variant="outlined" sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 600 }}>Annuler</Button>
+          <Button variant="contained" onClick={handleSave} sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 600 }}>Enregistrer</Button>
         </DialogActions>
       </Dialog>
     </Box>

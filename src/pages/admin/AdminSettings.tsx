@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button, Paper, Grid, Divider, Avatar, IconButton, CircularProgress } from '@mui/material';
-import { Save, Github, Instagram, Linkedin, Twitter, MessageSquare, User, Tag, MapPin, Image, ShieldAlert, Heart, Users, UserCheck, Camera } from 'lucide-react';
+import { Save, Github, Instagram, Linkedin, X as XIcon, MessageSquare, User, Tag, MapPin, Image, ShieldAlert, Heart, Users, UserCheck, Camera, Mail, Video } from 'lucide-react';
 import { usePortfolioStore } from '../../store/portfolio';
 import { useProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../hooks/useAuth';
@@ -29,8 +29,9 @@ export function AdminSettings() {
     discord: '',
     instagram: '',
     linkedin: '',
-    twitter: '',
-    website: '',
+    x: '',
+    email: '',
+    youtube: '',
   });
 
   const [usernameInput, setUsernameInput] = useState('');
@@ -51,8 +52,9 @@ export function AdminSettings() {
         discord: profile.socials?.discord || '',
         instagram: profile.socials?.instagram || '',
         linkedin: profile.socials?.linkedin || '',
-        twitter: profile.socials?.twitter || '',
-        website: profile.socials?.website || '',
+        x: profile.socials?.x || '',
+        email: profile.socials?.email || '',
+        youtube: profile.socials?.youtube || '',
       });
       setUsernameInput(profile.username || '');
     }
@@ -142,8 +144,9 @@ export function AdminSettings() {
         discord: form.discord,
         instagram: form.instagram,
         linkedin: form.linkedin,
-        twitter: form.twitter,
-        website: form.website,
+        x: form.x,
+        email: form.email,
+        youtube: form.youtube,
       },
     };
     updateProfile(updated);

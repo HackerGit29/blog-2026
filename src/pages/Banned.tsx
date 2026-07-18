@@ -2,6 +2,7 @@ import { Box, Typography, Button } from '@mui/material';
 import { ShieldOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { DEFAULT_TENANT } from '../store/portfolio';
 
 export function Banned() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ export function Banned() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    navigate(`/${DEFAULT_TENANT}`);
   };
 
   return (

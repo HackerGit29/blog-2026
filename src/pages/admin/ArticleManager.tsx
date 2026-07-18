@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, InputLabel, FormControl, useTheme, IconButton, Tooltip } from '@mui/material';
-import { Plus, Pencil, Trash2, Eye, Search } from 'lucide-react';
+import { useState } from 'react';
+import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, InputLabel, FormControl, IconButton, Tooltip, Tab } from '@mui/material';
+import { Plus, Pencil, Trash2, Search, Eye } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../hooks/useAuth';
+import { usePortfolioStore } from '../../store/portfolio';
 import { BlockEditor } from '../../components/admin/BlockEditor';
+import { ImageUpload } from '../../components/admin/ImageUpload';
+import DOMPurify from 'dompurify';
 
 interface ArticleForm {
   title: string; slug: string; content: string; summary: string;
@@ -19,15 +22,17 @@ const EMPTY_FORM: ArticleForm = {
   tags: '', status: 'draft', published_at: '', reading_time: 5,
 };
 
+const statusColors: Record<string, string> = { draft: '#F59E0B', scheduled: '#3B82F6', published: '#22C55E', archived: '#6B7280' };
+
 export function ArticleManager() {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
   const { user } = useAuth();
-  const tenant = (user?.user_metadata?.user_name as string | undefined) ?? 'admin';
+  const profile = usePortfolioStore(s => s.profile);
+  const tenant = profile.username || 'admin';
   const base = `/${tenant}`;
   const qc = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewArticle, setPreviewArticle] = useState<any>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ArticleForm>(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -86,10 +91,7 @@ export function ArticleManager() {
         if (error) throw error;
       }
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-articles'] });
-      closeDialog();
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-articles'] }); closeDialog(); },
     onError: (e: any) => alert(e.message),
   });
 
@@ -117,42 +119,35 @@ export function ArticleManager() {
 
   const closeDialog = () => { setDialogOpen(false); setEditingId(null); setForm(EMPTY_FORM); };
 
-  const statusColors: Record<string, string> = { draft: '#F59E0B', scheduled: '#3B82F6', published: '#22C55E', archived: '#6B7280' };
+  const openPreview = (a: any) => { setPreviewArticle(a); setPreviewOpen(true); };
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 800 }}>Articles</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>Gérez vos articles et vidéos</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>{filtered.length} article(s)</Typography>
         </Box>
-        <Button variant="contained" startIcon={<Plus size={18} />} onClick={() => { setForm(EMPTY_FORM); setEditingId(null); setDialogOpen(true); }}>
+        <Button variant="contained" startIcon={<Plus size={18} />} onClick={() => { setForm(EMPTY_FORM); setEditingId(null); setDialogOpen(true); }}
+          sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 700, px: 3 }}>
           Nouvel article
         </Button>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap', alignItems: 'center' }}>
-        <TextField
-          size="small" placeholder="Rechercher..."
-          value={search} onChange={e => setSearch(e.target.value)}
+        <TextField size="small" placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)}
           slotProps={{ input: { startAdornment: <Search size={16} style={{ marginRight: 8 }} /> } }}
-          sx={{ minWidth: 250, '& .MuiOutlinedInput-root': { borderRadius: '30px' } }}
-        />
+          sx={{ minWidth: 250, '& .MuiOutlinedInput-root': { borderRadius: '30px' } }} />
         <Box sx={{ display: 'flex', gap: 1 }}>
           {['all', 'draft', 'scheduled', 'published', 'archived'].map(s => (
-            <Chip
-              key={s}
-              label={s === 'all' ? 'Tous' : s}
-              onClick={() => setFilterStatus(s)}
-              color={filterStatus === s ? 'primary' : 'default'}
-              variant={filterStatus === s ? 'filled' : 'outlined'}
-              sx={{ fontWeight: 600, textTransform: 'capitalize' }}
-            />
+            <Chip key={s} label={s === 'all' ? 'Tous' : s} onClick={() => setFilterStatus(s)}
+              color={filterStatus === s ? 'primary' : 'default'} variant={filterStatus === s ? 'filled' : 'outlined'}
+              sx={{ fontWeight: 600, textTransform: 'capitalize' }} />
           ))}
         </Box>
       </Box>
 
-      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: '20px', border: '1px solid', borderColor: 'divider' }}>
+      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -170,14 +165,20 @@ export function ArticleManager() {
             ) : filtered.map((a: any) => (
               <TableRow key={a.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>{a.title}</Typography>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>{base}/blog/{a.slug}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {a.image_url && <Box component="img" src={a.image_url} sx={{ width: 40, height: 28, borderRadius: '6px', objectFit: 'cover' }} />}
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{a.title}</Typography>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>{base}/blog/{a.slug}</Typography>
+                    </Box>
+                  </Box>
                 </TableCell>
                 <TableCell><Typography variant="body2" sx={{ color: 'text.secondary' }}>{a.blog_categories?.name || '—'}</Typography></TableCell>
                 <TableCell><Chip label={a.status} size="small" sx={{ fontWeight: 600, bgcolor: statusColors[a.status] + '20', color: statusColors[a.status], textTransform: 'capitalize' }} /></TableCell>
                 <TableCell><Typography variant="body2" sx={{ color: 'text.secondary' }}>{a.media_type === 'video' ? 'Vidéo' : 'Article'}</Typography></TableCell>
                 <TableCell><Typography variant="body2" sx={{ color: 'text.secondary' }}>{a.published_at ? new Date(a.published_at).toLocaleDateString('fr-FR') : new Date(a.created_at).toLocaleDateString('fr-FR')}</Typography></TableCell>
                 <TableCell sx={{ textAlign: 'right' }}>
+                  <Tooltip title="Aperçu"><IconButton size="small" onClick={() => openPreview(a)}><Eye size={16} /></IconButton></Tooltip>
                   <Tooltip title="Modifier"><IconButton size="small" onClick={() => openEdit(a)}><Pencil size={16} /></IconButton></Tooltip>
                   <Tooltip title="Supprimer"><IconButton size="small" onClick={() => setDeleteTarget(a.id)}><Trash2 size={16} /></IconButton></Tooltip>
                 </TableCell>
@@ -188,16 +189,19 @@ export function ArticleManager() {
       </TableContainer>
 
       {/* Editor Dialog */}
-      <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="lg" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>{editingId ? 'Modifier l\'article' : 'Nouvel article'}</DialogTitle>
+      <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="lg" fullWidth scroll="body">
+        <DialogTitle sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{editingId ? "Modifier l'article" : 'Nouvel article'}</DialogTitle>
         <DialogContent dividers>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 2 }}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <TextField label="Titre" value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value, slug: autoSlug(e.target.value) }))} required sx={{ flex: 2, minWidth: 250 }} />
               <TextField label="Slug" value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value }))} sx={{ flex: 1, minWidth: 200 }} />
             </Box>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <TextField label="Image URL" value={form.image_url} onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))} placeholder="https://..." sx={{ flex: 1, minWidth: 200 }} />
+              <Box sx={{ flex: 1, minWidth: 250 }}>
+                <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', display: 'block', mb: 0.5 }}>Image à la une</Typography>
+                <ImageUpload currentUrl={form.image_url} onUpload={url => setForm(p => ({ ...p, image_url: url }))} onRemove={() => setForm(p => ({ ...p, image_url: '' }))} />
+              </Box>
               <TextField label="Video URL" value={form.video_url} onChange={e => setForm(p => ({ ...p, video_url: e.target.value }))} placeholder="https://youtube.com/..." sx={{ flex: 1, minWidth: 200 }} />
             </Box>
             <Box>
@@ -230,7 +234,7 @@ export function ArticleManager() {
               </FormControl>
               <TextField label="Temps (min)" type="number" value={form.reading_time} onChange={e => setForm(p => ({ ...p, reading_time: parseInt(e.target.value) || 5 }))} sx={{ width: 120 }} />
             </Box>
-            <TextField label="Tags (virgules)" value={form.tags} onChange={e => setForm(p => ({ ...p, tags: e.target.value }))} placeholder="react, ai, cloud" fullWidth />
+            <TextField label="Tags (séparés par virgules)" value={form.tags} onChange={e => setForm(p => ({ ...p, tags: e.target.value }))} placeholder="react, ai, cloud" fullWidth />
             <TextField label="Meta Description (SEO)" value={form.meta_description} onChange={e => setForm(p => ({ ...p, meta_description: e.target.value }))} multiline rows={2} fullWidth />
             {(form.status === 'scheduled' || form.status === 'published') && (
               <TextField label="Date de publication" type="datetime-local" value={form.published_at} onChange={e => setForm(p => ({ ...p, published_at: e.target.value }))} slotProps={{ inputLabel: { shrink: true } }} />
@@ -239,10 +243,26 @@ export function ArticleManager() {
         </DialogContent>
         <DialogActions sx={{ p: 2.5, gap: 1 }}>
           <Button variant="outlined" onClick={closeDialog}>Annuler</Button>
-          <Button onClick={() => saveMutation.mutate()} variant="contained" disabled={!form.title || saveMutation.isPending}>
+          <Button onClick={() => saveMutation.mutate()} variant="contained" disabled={!form.title || saveMutation.isPending} sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 700 }}>
             {saveMutation.isPending ? 'Sauvegarde...' : editingId ? 'Mettre à jour' : 'Publier'}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth scroll="body">
+        <DialogTitle sx={{ fontWeight: 700 }}>{previewArticle?.title}</DialogTitle>
+        <DialogContent dividers>
+          {previewArticle?.image_url && (
+            <Box component="img" src={previewArticle.image_url} sx={{ width: '100%', maxHeight: 400, objectFit: 'cover', borderRadius: '12px', mb: 3 }} />
+          )}
+          {previewArticle?.summary && (
+            <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3, fontStyle: 'italic' }}>{previewArticle.summary}</Typography>
+          )}
+          <Box sx={{ '& img': { maxWidth: '100%', borderRadius: '8px' }, '& h2': { mt: 4, mb: 2 }, '& h3': { mt: 3, mb: 1.5 }, '& p': { mb: 2, lineHeight: 1.8 } }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(previewArticle?.content || '') }} />
+        </DialogContent>
+        <DialogActions><Button onClick={() => setPreviewOpen(false)}>Fermer</Button></DialogActions>
       </Dialog>
 
       {/* Delete confirm */}
@@ -251,7 +271,7 @@ export function ArticleManager() {
         <DialogContent><Typography variant="body2" sx={{ color: 'text.secondary' }}>Cette action est irréversible.</Typography></DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={() => setDeleteTarget(null)}>Annuler</Button>
-          <Button color="error" variant="contained" onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget)}>Supprimer</Button>
+          <Button color="error" variant="contained" onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget)} sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 700 }}>Supprimer</Button>
         </DialogActions>
       </Dialog>
     </Box>
