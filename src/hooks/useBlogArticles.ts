@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/client';
 
 export interface UseBlogArticlesOptions {
+  username?: string;
   search?: string;
   categoryId?: string;
   mediaFilter?: 'all' | 'image' | 'video';
@@ -23,6 +24,7 @@ async function fetchViaApi(options?: UseBlogArticlesOptions): Promise<ArticlesRe
   const params = new URLSearchParams();
   if (options?.page) params.set('page', String(options.page));
   if (options?.perPage) params.set('per_page', String(options.perPage));
+  if (options?.username) params.set('username', options.username);
   if (options?.search) params.set('search', options.search);
   if (options?.categoryId && options.categoryId !== 'all') params.set('category_id', options.categoryId);
   if (options?.mediaFilter && options.mediaFilter !== 'all') params.set('media_type', options.mediaFilter);
@@ -42,11 +44,13 @@ async function fetchViaApi(options?: UseBlogArticlesOptions): Promise<ArticlesRe
 
 async function fetchDirect(options?: UseBlogArticlesOptions): Promise<ArticlesResponse> {
   let query = supabase
-    .from('admin_articles')
-    .select('*, blog_categories(*)', { count: 'exact' })
-    .eq('is_published', true)
+    .from('article_list')
+    .select('*', { count: 'exact' })
     .order('published_at', { ascending: false });
 
+  if (options?.username) {
+    query = query.eq('author->>username', options.username);
+  }
   if (options?.search) {
     query = query.or(`title.ilike.%${options.search}%,summary.ilike.%${options.search}%`);
   }
@@ -69,8 +73,13 @@ async function fetchDirect(options?: UseBlogArticlesOptions): Promise<ArticlesRe
 
   const { data, count } = await query;
 
+  const mapped = (data || []).map((article: any) => ({
+    ...article,
+    blog_categories: article.category || article.blog_categories,
+  }));
+
   return {
-    data: data || [],
+    data: mapped,
     total: count || 0,
     total_all: count || 0,
     page,

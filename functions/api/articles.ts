@@ -24,12 +24,17 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const search = url.searchParams.get('search') || '';
     const categoryId = url.searchParams.get('category_id') || '';
     const mediaType = url.searchParams.get('media_type') || 'all';
+    const username = url.searchParams.get('username') || '';
 
     const from = (page - 1) * per_page;
     const to = from + per_page - 1;
 
     let apiUrl = `${env.SUPABASE_URL}/rest/v1/article_list?select=*&order=published_at.desc`;
 
+    if (username) {
+      const esc = username.replace(/'/g, "''");
+      apiUrl += `&author->>username=eq.${esc}`;
+    }
     if (search) {
       const esc = search.replace(/'/g, "''");
       apiUrl += `&or=(title.ilike.*${esc}*,summary.ilike.*${esc}*)`;
@@ -61,7 +66,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const data = await res.json();
 
     // Fetch category counts for filter badges
-    const catUrl = `${env.SUPABASE_URL}/rest/v1/admin_articles?select=category_id&is_published=eq.true`;
+    const catBaseUrl = `${env.SUPABASE_URL}/rest/v1/article_list?select=category_id`;
+    const catFilter = username ? `&author->>username=eq.${username.replace(/'/g, "''")}` : '';
+    const catUrl = `${catBaseUrl}${catFilter}`;
     const catRes = await fetch(catUrl, {
       headers: { 'apikey': env.SUPABASE_ANON_KEY, 'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}` },
     });

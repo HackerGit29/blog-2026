@@ -63,9 +63,9 @@ export function PortfolioHome() {
 function TabContent({ tab, username }: { tab: string; username?: string }) {
   switch (tab) {
     case 'blog':
-      return <BlogTab />;
+      return <BlogTab username={username} />;
     case 'videos':
-      return <VideosTab />;
+      return <VideosTab username={username} />;
     case 'ressources':
       return <RessourcesTab username={username} />;
     case 'apropos':
@@ -75,11 +75,11 @@ function TabContent({ tab, username }: { tab: string; username?: string }) {
   }
 }
 
-function BlogTab() {
+function BlogTab({ username }: { username?: string }) {
   const [page, setPage] = useState(1);
   const perPage = 9;
 
-  const { data, isLoading } = useBlogArticles({ page, perPage });
+  const { data, isLoading } = useBlogArticles({ username, page, perPage });
 
   const articles = data?.data || [];
   const totalPages = data?.total_pages || 1;
@@ -117,10 +117,10 @@ function BlogTab() {
   );
 }
 
-function VideosTab() {
+function VideosTab({ username }: { username?: string }) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: rawArticles, isLoading } = useBlogArticles({ mediaFilter: 'video' });
+  const { data: rawArticles, isLoading } = useBlogArticles({ username, mediaFilter: 'video' });
 
   const fallbackArticles = [
     {
