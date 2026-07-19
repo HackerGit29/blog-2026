@@ -28,35 +28,7 @@ export function BlogVideos() {
 
   const categories = rawCategories as any[] || [];
   
-  // Local fallback if Supabase table is empty or has no video articles yet
-  // This guarantees a flawless premium experience
-  const fallbackArticles = [
-    {
-      id: 'mock-1',
-      title: 'Comment bien démarrer avec Copilot Studio',
-      summary: 'Tutoriel complet sur la création de votre premier agent conversationnel personnalisé sans ligne de code.',
-      slug: 'creer-un-plan-microsoft-learn', // maps to a rich tutorial enhancement
-      image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-      video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // YouTube link
-      media_type: 'video',
-      published_at: new Date().toISOString(),
-      blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' }
-    },
-    {
-      id: 'mock-2',
-      title: 'Maîtriser le Prompt Engineering dans Microsoft Copilot',
-      summary: 'Découvrez comment structurer vos requêtes pour obtenir des synthèses d\'architecture logicielle de haute volée.',
-      slug: 'mon-premier-tutoriel-copilot', // maps to a rich tutorial enhancement
-      image_url: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=800&q=80',
-      video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // YouTube link
-      media_type: 'video',
-      published_at: new Date().toISOString(),
-      blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' }
-    }
-  ];
-
-  const articleData = rawArticles?.data ?? [];
-  const articles = articleData.length > 0 ? articleData : fallbackArticles;
+  const articles = rawArticles?.data ?? [];
 
   // Filters application
   const filteredArticles = articles.filter((article: any) => {

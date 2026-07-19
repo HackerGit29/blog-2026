@@ -122,32 +122,7 @@ function VideosTab({ username }: { username?: string }) {
 
   const { data: rawArticles, isLoading } = useBlogArticles({ username, mediaFilter: 'video' });
 
-  const fallbackArticles = [
-    {
-      id: 'mock-1',
-      title: 'Comment bien démarrer avec Copilot Studio',
-      summary: 'Tutoriel complet sur la creation de votre premier agent conversationnel personnalise sans ligne de code.',
-      slug: 'creer-un-plan-microsoft-learn',
-      image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-      video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      media_type: 'video',
-      published_at: new Date().toISOString(),
-      blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' }
-    },
-    {
-      id: 'mock-2',
-      title: 'Maitriser le Prompt Engineering dans Microsoft Copilot',
-      summary: 'Decouvrez comment structurer vos requetes pour obtenir des syntheses d\'architecture logicielle de haute volee.',
-      slug: 'mon-premier-tutoriel-copilot',
-      image_url: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=800&q=80',
-      video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      media_type: 'video',
-      published_at: new Date().toISOString(),
-      blog_categories: { name: 'IA', slug: 'ia', color: '#10B981' }
-    }
-  ];
-
-  const articles = rawArticles?.data && rawArticles.data.length > 0 ? rawArticles.data : fallbackArticles;
+  const articles = rawArticles?.data || [];
 
   const filteredArticles = articles.filter((article: any) => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -191,10 +166,7 @@ function VideosTab({ username }: { username?: string }) {
           ))}
         </Grid>
       ) : filteredArticles.length === 0 ? (
-        <Box sx={{ py: 8, textAlign: 'center', bgcolor: 'action.hover', borderRadius: '16px', border: '1px dashed', borderColor: 'divider' }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Aucun module trouve</Typography>
-          <Typography variant="body2" color="text.secondary">Essayez de modifier vos filtres de recherche ou selectionnez une autre categorie.</Typography>
-        </Box>
+<Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8 }}>Aucune vidéo.</Typography>
       ) : (
         <Grid container spacing={3.5}>
           {filteredArticles.map((article: any, index: number) => (
@@ -209,7 +181,7 @@ function VideosTab({ username }: { username?: string }) {
         <Grid container spacing={4} sx={{ alignItems: 'center' }}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="overline" color="primary" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-              RECOMMANDATION DU GROUPE ETUDIANT
+              RECOMMANDATION DU GROUPE ÉTUDIANT
             </Typography>
             <Typography variant="h4" sx={{ fontWeight: 900, mt: 1, mb: 2, letterSpacing: '-0.5px' }}>
               Prêt à faire valider tes compétences ?

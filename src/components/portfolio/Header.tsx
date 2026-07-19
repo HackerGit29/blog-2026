@@ -88,13 +88,12 @@ export function Header() {
     if (actionChildren?.length) {
       tl.from(actionChildren, {
         x: 20,
-        opacity: 0,
         stagger: 0.1,
         duration: 0.4,
         ease: 'power2.out'
       }, "-=0.4");
     }
-  }, { scope: headerRef });
+  }, { scope: headerRef, dependencies: [] });
 
   return (
     <>

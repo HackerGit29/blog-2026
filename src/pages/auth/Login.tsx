@@ -94,6 +94,32 @@ export function Login() {
 
   const onTurnstileExpire = useCallback(() => setTurnstileToken(null), []);
 
+  const autoWelcome = useCallback(async (userId: string) => {
+    try {
+      const { data: existing } = await supabase
+        .from('notifications')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('title', 'Bienvenue sur la communauté !')
+        .maybeSingle();
+      if (existing) return;
+      await supabase.from('notifications').insert([
+        {
+          user_id: userId,
+          kind: 'system',
+          title: 'Bienvenue sur la communauté !',
+          body: 'Votre espace personnel est prêt. Explorez les articles, tutoriels vidéo et ressources. Connectez-vous avec la communauté et partagez votre parcours.',
+        },
+        {
+          user_id: userId,
+          kind: 'system',
+          title: 'Personnalisez votre profil',
+          body: 'Ajoutez votre photo, votre bio et vos réseaux sociaux pour rendre votre profil unique et faciliter les échanges avec les autres membres.',
+        },
+      ]);
+    } catch (_) {}
+  }, []);
+
   if (authLoading) return null;
   if (user) { navigate('/onboarding', { replace: true }); return null; }
 
@@ -107,6 +133,9 @@ export function Login() {
         setIsRegister(false);
       } else {
         const { user } = await signInWithEmail(email, password);
+
+        autoWelcome(user.id);
+
         const { data: profile } = await supabase
           .from('user_profiles')
           .select('username')

@@ -24,7 +24,11 @@ const EMPTY_FORM: ArticleForm = {
 
 const statusColors: Record<string, string> = { draft: '#F59E0B', scheduled: '#3B82F6', published: '#22C55E', archived: '#6B7280' };
 
-export function ArticleManager() {
+interface ArticleManagerProps {
+  mediaType?: 'image' | 'video';
+}
+
+export function ArticleManager({ mediaType }: ArticleManagerProps = {}) {
   const { user } = useAuth();
   const profile = usePortfolioStore(s => s.profile);
   const tenant = profile.username || 'admin';
@@ -34,10 +38,14 @@ export function ArticleManager() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewArticle, setPreviewArticle] = useState<any>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<ArticleForm>(EMPTY_FORM);
+  const [form, setForm] = useState<ArticleForm>({ ...EMPTY_FORM, media_type: mediaType || 'image' });
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+
+  const isVideo = mediaType === 'video';
+  const label = isVideo ? 'vidéo' : 'article';
+  const labelPlural = isVideo ? 'Vidéos' : 'Articles';
 
   const { data: categories } = useQuery({
     queryKey: ['admin-categories'],
@@ -48,14 +56,17 @@ export function ArticleManager() {
   });
 
   const { data: articles, isLoading } = useQuery({
-    queryKey: ['admin-articles', user?.id],
+    queryKey: ['admin-articles', user?.id, mediaType],
     queryFn: async () => {
       if (!user) return [];
-      const { data } = await supabase
+      let query = supabase
         .from('admin_articles')
         .select('*, blog_categories(name)')
-        .eq('author_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('author_id', user.id);
+      if (mediaType) {
+        query = query.eq('media_type', mediaType);
+      }
+      const { data } = await query.order('created_at', { ascending: false });
       return (data || []) as any[];
     },
     enabled: !!user,
@@ -117,7 +128,7 @@ export function ArticleManager() {
     setDialogOpen(true);
   };
 
-  const closeDialog = () => { setDialogOpen(false); setEditingId(null); setForm(EMPTY_FORM); };
+  const closeDialog = () => { setDialogOpen(false); setEditingId(null); setForm({ ...EMPTY_FORM, media_type: mediaType || 'image' }); };
 
   const openPreview = (a: any) => { setPreviewArticle(a); setPreviewOpen(true); };
 
@@ -125,12 +136,12 @@ export function ArticleManager() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>Articles</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>{filtered.length} article(s)</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 800 }}>{labelPlural}</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>{filtered.length} {label}(s)</Typography>
         </Box>
-        <Button variant="contained" startIcon={<Plus size={18} />} onClick={() => { setForm(EMPTY_FORM); setEditingId(null); setDialogOpen(true); }}
+        <Button variant="contained" startIcon={<Plus size={18} />} onClick={() => { setForm({ ...EMPTY_FORM, media_type: mediaType || 'image' }); setEditingId(null); setDialogOpen(true); }}
           sx={{ borderRadius: '30px', textTransform: 'none', fontWeight: 700, px: 3 }}>
-          Nouvel article
+          Nouvel{isVideo ? 'le' : ''} {label}
         </Button>
       </Box>
 
@@ -161,7 +172,7 @@ export function ArticleManager() {
           </TableHead>
           <TableBody>
             {filtered.length === 0 ? (
-              <TableRow><TableCell colSpan={6} align="center" sx={{ py: 6, color: 'text.secondary' }}>Aucun article trouvé</TableCell></TableRow>
+              <TableRow><TableCell colSpan={6} align="center" sx={{ py: 6, color: 'text.secondary' }}>Aucun{isVideo ? 'e' : ''} {label} trouvé{isVideo ? 'e' : ''}</TableCell></TableRow>
             ) : filtered.map((a: any) => (
               <TableRow key={a.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
@@ -190,7 +201,7 @@ export function ArticleManager() {
 
       {/* Editor Dialog */}
       <Dialog open={dialogOpen} onClose={closeDialog} maxWidth="lg" fullWidth scroll="body">
-        <DialogTitle sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{editingId ? "Modifier l'article" : 'Nouvel article'}</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{editingId ? `Modifier ${isVideo ? 'la' : "l'"}${label}` : `Nouvel${isVideo ? 'le' : ''} ${label}`}</DialogTitle>
         <DialogContent dividers>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 2 }}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -225,13 +236,15 @@ export function ArticleManager() {
                   {categories?.map((c: any) => <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>)}
                 </Select>
               </FormControl>
-              <FormControl sx={{ minWidth: 140 }}>
-                <InputLabel>Type média</InputLabel>
-                <Select value={form.media_type} label="Type média" onChange={e => setForm(p => ({ ...p, media_type: e.target.value }))}>
-                  <MenuItem value="image">Image</MenuItem>
-                  <MenuItem value="video">Vidéo</MenuItem>
-                </Select>
-              </FormControl>
+              {!mediaType && (
+                <FormControl sx={{ minWidth: 140 }}>
+                  <InputLabel>Type média</InputLabel>
+                  <Select value={form.media_type} label="Type média" onChange={e => setForm(p => ({ ...p, media_type: e.target.value }))}>
+                    <MenuItem value="image">Image</MenuItem>
+                    <MenuItem value="video">Vidéo</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
               <TextField label="Temps (min)" type="number" value={form.reading_time} onChange={e => setForm(p => ({ ...p, reading_time: parseInt(e.target.value) || 5 }))} sx={{ width: 120 }} />
             </Box>
             <TextField label="Tags (séparés par virgules)" value={form.tags} onChange={e => setForm(p => ({ ...p, tags: e.target.value }))} placeholder="react, ai, cloud" fullWidth />
