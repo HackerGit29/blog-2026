@@ -213,9 +213,11 @@ export function ProfileSection({ profileOverride }: { profileOverride?: ProfileD
             </Box>
          </Stack>
 
-         <Stack direction="row" sx={{ gap: { xs: 3, sm: 6 }, mt: 2 }}>
-           <FollowerBox formattedCount={profile.formattedFollowers || '0'} label="Abonnés" />
-         </Stack>
+          {user && (
+            <Stack direction="row" sx={{ gap: { xs: 3, sm: 6 }, mt: 2 }}>
+              <FollowerBox formattedCount={profile.formattedFollowers || '0'} label="Abonnés" />
+            </Stack>
+          )}
       </Box>
     </Box>
   );
