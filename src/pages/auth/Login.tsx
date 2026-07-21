@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button, Alert, CircularProgress, IconButton, InputAdornment } from '@mui/material';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -156,11 +156,14 @@ export function Login() {
     }
   };
 
-  // Auto-submit once turnstile verifies
-  if (pendingSubmit && turnstileToken) {
-    doLogin();
-    setPendingSubmit(false);
-  }
+  const doLoginRef = useRef(doLogin);
+  doLoginRef.current = doLogin;
+
+  useEffect(() => {
+    if (pendingSubmit && turnstileToken) {
+      doLoginRef.current();
+    }
+  }, [pendingSubmit, turnstileToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,7 +175,7 @@ export function Login() {
       setShowTurnstile(true);
       return;
     }
-    doLogin();
+    doLoginRef.current();
   };
 
   return (
