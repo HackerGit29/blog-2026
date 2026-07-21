@@ -120,6 +120,14 @@ export function Login() {
     } catch (_) {}
   }, []);
 
+  const doLoginRef = useRef<() => Promise<void>>(async () => {});
+
+  useEffect(() => {
+    if (pendingSubmit && turnstileToken) {
+      doLoginRef.current();
+    }
+  }, [pendingSubmit, turnstileToken]);
+
   if (authLoading) return null;
   if (user) { navigate('/onboarding', { replace: true }); return null; }
 
@@ -156,14 +164,7 @@ export function Login() {
     }
   };
 
-  const doLoginRef = useRef(doLogin);
   doLoginRef.current = doLogin;
-
-  useEffect(() => {
-    if (pendingSubmit && turnstileToken) {
-      doLoginRef.current();
-    }
-  }, [pendingSubmit, turnstileToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
