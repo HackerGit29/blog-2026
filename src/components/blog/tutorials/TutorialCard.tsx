@@ -18,17 +18,7 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
   const navigate = useNavigate();
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
-  const enhancement: TutorialEnhancement = article.video_metadata || {
-    level: 'Débutant',
-    durationText: '10:00',
-    objectives: [],
-    prerequisites: [],
-    expectedResult: '',
-    tools: [],
-    steps: [],
-    codeSnippets: [],
-    resources: [],
-  };
+  const enhancement: TutorialEnhancement = article.video_metadata || { steps: [], codeSnippets: [] } as TutorialEnhancement;
 
   return (
     <motion.div
@@ -68,26 +58,6 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
           sx={{ borderBottom: '1px solid', borderColor: 'divider' }}
         />
         
-        {/* Video Duration Badge */}
-        <Box 
-          sx={{ 
-            position: 'absolute', 
-            bottom: 12, 
-            right: 12, 
-            bgcolor: 'rgba(0, 0, 0, 0.75)', 
-            backdropFilter: 'blur(4px)',
-            color: 'white', 
-            px: 1, 
-            py: 0.5, 
-            borderRadius: '4px',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '0.75rem',
-            fontWeight: 600
-          }}
-        >
-          {enhancement.durationText || '10:00'}
-        </Box>
-
         {/* Play Icon Overlay */}
         <Box sx={{ 
           position: 'absolute', 
