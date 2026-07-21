@@ -1,0 +1,5 @@
+# Supabase Edge Function configuration
+# Deploy with: supabase functions deploy cleanup-notifications --schedule "0 0 * * 0"
+
+[functions.cleanup-notifications]
+enabled = true

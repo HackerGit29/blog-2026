@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Container, Typography, Grid, Pagination, Skeleton, TextField, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useParams } from 'react-router-dom';
@@ -19,7 +19,9 @@ const tabs = ['blog', 'videos', 'ressources', 'apropos'];
 export function PortfolioHome() {
   const { user } = useParams<{ user: string }>();
   const activeTab = usePortfolioStore((s) => s.activeTab);
+  const setActiveTab = usePortfolioStore((s) => s.setActiveTab);
   const updateProfile = usePortfolioStore((s) => s.updateProfile);
+  const touchStartX = useRef(0);
   const currentTab = tabs[activeTab] || 'blog';
 
   const tenantUsername = user || '';
@@ -33,6 +35,18 @@ export function PortfolioHome() {
 
   const profileOverride = publicProfile ?? undefined;
   const profileName = publicProfile?.name || tenantUsername;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0 && activeTab > 0) setActiveTab(activeTab - 1);
+      else if (deltaX < 0 && activeTab < tabs.length - 1) setActiveTab(activeTab + 1);
+    }
+  };
 
   return (
     <>
@@ -49,7 +63,9 @@ export function PortfolioHome() {
           <Header />
           <ProfileSection profileOverride={profileOverride} />
           <ProjectTabs />
-          <TabContent tab={currentTab} username={tenantUsername} />
+          <Box onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} sx={{ touchAction: 'pan-y' }}>
+            <TabContent tab={currentTab} username={tenantUsername} />
+          </Box>
           <Box sx={{ mt: 8 }}>
             <BlogNewsletter />
           </Box>
@@ -79,7 +95,7 @@ function BlogTab({ username }: { username?: string }) {
   const [page, setPage] = useState(1);
   const perPage = 9;
 
-  const { data, isLoading } = useBlogArticles({ username, page, perPage });
+  const { data, isLoading } = useBlogArticles({ username, page, perPage, mediaFilter: 'image' });
 
   const articles = data?.data || [];
   const totalPages = data?.total_pages || 1;

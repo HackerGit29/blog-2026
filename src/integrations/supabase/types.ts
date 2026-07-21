@@ -58,6 +58,7 @@ export type Database = {
           summary: string | null
           tags: string[] | null
           title: string
+          video_metadata: Json | null
           video_url: string | null
         }
         Insert: {
@@ -78,6 +79,7 @@ export type Database = {
           summary?: string | null
           tags?: string[] | null
           title: string
+          video_metadata?: Json | null
           video_url?: string | null
         }
         Update: {
@@ -98,6 +100,7 @@ export type Database = {
           summary?: string | null
           tags?: string[] | null
           title?: string
+          video_metadata?: Json | null
           video_url?: string | null
         }
         Relationships: [
@@ -250,6 +253,24 @@ export type Database = {
           id?: string
           source?: string | null
           status?: string | null
+        }
+        Relationships: []
+      }
+      notification_deletes: {
+        Row: {
+          deleted_at: string | null
+          notification_id: string
+          user_id: string
+        }
+        Insert: {
+          deleted_at?: string | null
+          notification_id: string
+          user_id: string
+        }
+        Update: {
+          deleted_at?: string | null
+          notification_id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -434,6 +455,7 @@ export type Database = {
           author_id: string | null
           category: Json | null
           category_id: string | null
+          content: string | null
           created_at: string | null
           featured_order: number | null
           id: string | null
@@ -445,6 +467,7 @@ export type Database = {
           summary: string | null
           tags: string[] | null
           title: string | null
+          video_metadata: Json | null
           video_url: string | null
         }
         Relationships: [

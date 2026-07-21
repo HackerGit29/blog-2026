@@ -6,7 +6,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import SubtitlesIcon from '@mui/icons-material/Subtitles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { getTutorialEnhancement } from '../../../data/tutorialEnhancements';
+import type { TutorialEnhancement } from '../../../data/tutorialEnhancements';
 import { ArticleAuthorFooter } from '../ArticleAuthorFooter';
 
 export interface TutorialCardProps {
@@ -18,7 +18,17 @@ export function TutorialCard({ article, index }: TutorialCardProps) {
   const navigate = useNavigate();
   const { user } = useParams<{ user: string }>();
   const base = `/${user ?? 'admin'}`;
-  const enhancement = getTutorialEnhancement(article.slug);
+  const enhancement: TutorialEnhancement = article.video_metadata || {
+    level: 'Débutant',
+    durationText: '10:00',
+    objectives: [],
+    prerequisites: [],
+    expectedResult: '',
+    tools: [],
+    steps: [],
+    codeSnippets: [],
+    resources: [],
+  };
 
   return (
     <motion.div

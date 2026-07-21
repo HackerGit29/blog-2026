@@ -5,7 +5,6 @@ import { ArrowBack } from '@mui/icons-material';
 import { useBlogArticle } from '../hooks/useBlogArticle';
 import { getEmbedUrl } from '../lib/videoUtils';
 import { TutorialWorkspace } from '../components/blog/tutorials/TutorialWorkspace';
-import { getTutorialEnhancement } from '../data/tutorialEnhancements';
 import { MicrosoftBanners } from '../components/blog/MicrosoftBanners';
 import { getMicrosoftTech } from '../lib/microsoft/content';
 import { SEOHead, BlogPostingJsonLd } from '../components/SEOHead';
@@ -48,7 +47,8 @@ export function BlogArticle() {
   // HTML assaini via DOMPurify — protège contre les injections XSS
 
   const isVideoTutorial = article.media_type === 'video';
-  const enhancement = isVideoTutorial ? getTutorialEnhancement(article.slug) : null;
+  const rawMeta = isVideoTutorial ? article.video_metadata : null;
+  const enhancement = rawMeta && typeof rawMeta === 'object' ? rawMeta : null;
 
   const articleUrl = `https://benji-aka-dev.site${base}/blog/${article.slug}`;
   const articleAuthor = article?.author;

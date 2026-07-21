@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Box, Tabs, Tab, Typography, Grid, Divider } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -45,9 +45,22 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export function TutorialWorkspace({ videoUrl, imageUrl, title, enhancement }: TutorialWorkspaceProps) {
   const [tabValue, setTabValue] = useState(0);
+  const touchStartX = useRef(0);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0 && tabValue > 0) setTabValue(tabValue - 1);
+      else if (deltaX < 0 && tabValue < 2) setTabValue(tabValue + 1);
+    }
   };
 
   return (
@@ -91,6 +104,7 @@ export function TutorialWorkspace({ videoUrl, imageUrl, title, enhancement }: Tu
       </Box>
 
       {/* Tab Panels */}
+      <Box onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} sx={{ touchAction: 'pan-y' }}>
       <CustomTabPanel value={tabValue} index={0}>
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 6 }}>
@@ -134,6 +148,7 @@ export function TutorialWorkspace({ videoUrl, imageUrl, title, enhancement }: Tu
           ))}
         </Grid>
       </CustomTabPanel>
+      </Box>
     </Box>
   );
 }

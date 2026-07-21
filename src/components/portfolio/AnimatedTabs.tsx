@@ -36,8 +36,23 @@ export const Tabs = ({ defaultValue, value: controlledValue, onValueChange, chil
 
 export const TabsList = ({ children, ...props }: React.ComponentProps<'div'>) => {
   return (
-    <div {...props} style={{ display: 'flex', position: 'relative', borderBottom: '1px solid #27272A', ...props.style }}>
+    <div
+      {...props}
+      style={{
+        display: 'flex',
+        position: 'relative',
+        borderBottom: '1px solid #27272A',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+        flexWrap: 'nowrap',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        WebkitOverflowScrolling: 'touch',
+        ...props.style,
+      }}
+    >
       {children}
+      <style>{'div::-webkit-scrollbar { display: none; }'}</style>
     </div>
   );
 };
