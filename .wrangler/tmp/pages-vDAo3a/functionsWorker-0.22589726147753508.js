@@ -604,7 +604,7 @@ ${urls.map((u) => `  <url>
   }
 }, "onRequest");
 
-// ../.wrangler/tmp/pages-6eA7gY/functionsRoutes-0.0027594031940378905.mjs
+// ../.wrangler/tmp/pages-vDAo3a/functionsRoutes-0.08133891141619154.mjs
 var routes = [
   {
     routePath: "/api/admin/toggle",
