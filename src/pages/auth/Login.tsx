@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+﻿import { useState, useCallback, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, Button, Alert, CircularProgress, IconButton, InputAdornment } from '@mui/material';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -85,11 +85,17 @@ export function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [showTurnstile, setShowTurnstile] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [pendingSubmit, setPendingSubmit] = useState(false);
+
+  // ── Redirect in useEffect (never during render) to avoid React warning ──
+  useEffect(() => {
+    if (user) {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [user, navigate]);
 
   const onTurnstileVerify = useCallback((token: string) => {
     setTurnstileToken(token);
-    setPendingSubmit(true);
+    doLoginRef.current();
   }, []);
 
   const onTurnstileExpire = useCallback(() => setTurnstileToken(null), []);
@@ -122,14 +128,8 @@ export function Login() {
 
   const doLoginRef = useRef<() => Promise<void>>(async () => {});
 
-  useEffect(() => {
-    if (pendingSubmit && turnstileToken) {
-      doLoginRef.current();
-    }
-  }, [pendingSubmit, turnstileToken]);
-
   if (authLoading) return null;
-  if (user) { navigate('/onboarding', { replace: true }); return null; }
+  if (user) return null;
 
   const doLogin = async () => {
     setSubmitting(true);
@@ -160,7 +160,6 @@ export function Login() {
       setTurnstileToken(null);
     } finally {
       setSubmitting(false);
-      setPendingSubmit(false);
     }
   };
 
@@ -180,8 +179,9 @@ export function Login() {
   };
 
   return (
+
     <Box sx={{ height: '100vh', display: 'flex', overflow: 'hidden', bgcolor: '#000' }}>
-      {/* Shader — 70% */}
+      {/* Shader — 50% */}
       <Box
         sx={{
           width: '50%',
@@ -195,18 +195,18 @@ export function Login() {
         <ShaderAnimation />
       </Box>
 
-      {/* Form — 30% */}
+      {/* Form — 50% */}
       <Box
         sx={{
-          flex: 1,
+          width: { xs: '100%', md: '50%' },
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          p: 3,
           bgcolor: '#000',
+          px: 4,
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: 380 }}>
+        <Box sx={{ maxWidth: 400, width: '100%' }}>
           <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFE213', mb: 0.5, letterSpacing: '-0.5px' }}>
             {isRegister ? '' : ''}
           </Typography>
